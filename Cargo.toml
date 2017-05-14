@@ -1,0 +1,6 @@
+[package]
+name = "libproxer"
+version = "0.1.0"
+authors = ["Paul Maruhn <paulmaruhn@gmail.com>"]
+
+[dependencies]
