@@ -1,6 +1,8 @@
 [package]
-name = "libproxer"
+name = "proxer"
 version = "0.1.0"
 authors = ["Paul Maruhn <paulmaruhn@gmail.com>"]
 
 [dependencies]
+hyper = "0.10.10"
+serde_json = "*"
