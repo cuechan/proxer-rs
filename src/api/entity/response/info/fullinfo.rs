@@ -29,7 +29,7 @@ pub struct FullInfo {
 
 
 impl FullInfo {
-    pub fn new(data: serde_json::Value) {
-        unimplemented!
+    pub fn new_from_json(data: serde_json::Value) {
+        unimplemented!();
     }
 }

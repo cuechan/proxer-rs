@@ -1,4 +1,6 @@
 use std::option::Option;
+use hyper;
+use hyper::client::response;
 
 
 pub struct Response {
@@ -9,10 +11,14 @@ pub struct Response {
 
 
 impl Response {
-    pub fn new<T>() -> Self {
-        Response {
-            data: "dummy".to_string(),
-            http_status: 200
+    pub fn new<T>(hyper_res: Result<response::Response, hyper::Error>) -> Result<response::Response, hyper::Error> {
+        match hyper_res {
+            Ok(e) => {
+                Ok(e)
+            }
+            Err(e) => {
+                Err(e)
+            }
         }
     }
 }
