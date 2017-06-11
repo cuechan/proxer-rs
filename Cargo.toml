@@ -6,3 +6,4 @@ authors = ["Paul Maruhn <paulmaruhn@gmail.com>"]
 [dependencies]
 hyper = "0.10.10"
 serde_json = "*"
+urlencoded = "*"
