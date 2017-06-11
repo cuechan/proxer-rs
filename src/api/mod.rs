@@ -65,20 +65,23 @@ impl Api {
 
 
 
-    fn http_req(self, url: &str) -> Result<client::response::Response, hyper::Error> {
+    fn http_req<T: ToString>(self, url: &str, data: T) -> Result<client::response::Response, hyper::Error> {
         let uri = self.base_uri.to_string()+url;
         let hyper_url = hyper::Url::parse(&uri).unwrap();
-        header! {(ProxerApiKeyHeader, "proxer-api-key") => [String]}
-        header! {(UserAgent, "User-Agent") => [String]}
+
 
         let mut headers = hyper::header::Headers::new();
+        header! {(ProxerApiKeyHeader, "proxer-api-key") => [String]}
+        header! {(UserAgent, "User-Agent") => [String]}
         headers.set(ProxerApiKeyHeader(self.api_key));
-        headers.set(ProxerApiKeyHeader(self.user_agent));
+        headers.set(UserAgent(self.user_agent));
+        headers.set(hyper::header::ContentType::form_url_encoded());
 
 
         self.client
             .post(hyper_url)
             .headers(headers)
+            .body(&data.to_string())
             .send()
     }
 
