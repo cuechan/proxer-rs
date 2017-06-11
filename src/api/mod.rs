@@ -59,7 +59,12 @@ impl Api {
         use api::entity::response::*;
         let url = "info/fullentry";
 
-        response::Response::new::<info::fullinfo::FullInfo>(self.http_req(url))
+        let mut post = postparams::Postparams::new();
+
+        post.add("id", id);
+
+
+        response::Response::new::<info::fullinfo::FullInfo>(self.http_req(url, post))
     }
 
 
