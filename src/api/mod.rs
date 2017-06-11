@@ -24,7 +24,6 @@ pub struct Api {
     api_key: String,
     login_token: String,
     client: hyper::client::Client,
-    version: String,
     user_agent: String,
 }
 
@@ -48,7 +47,6 @@ impl Api {
             login_token: "None".to_string(),
             client:      hyper::client::Client::new(),
             user_agent:  ua,
-            version:     std::env::var("HOME").unwrap()
         }
     }
 
