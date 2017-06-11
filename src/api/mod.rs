@@ -1,18 +1,22 @@
 #[allow(unused)]
-pub mod response;
 pub mod entity;
 pub mod http;
+pub mod response;
+pub mod postparams;
 
-use std;
-use std::option::Option;
-use std::result::Result;
-use hyper;
+extern crate hyper;
+extern crate serde_json;
+extern crate urlencoded;
+
 use hyper::client;
+use hyper::mime::Mime;
+use std;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::io::Read;
-use serde_json;
+use std::option::Option;
 use std::process::exit;
+use std::result::Result;
 
 
 
