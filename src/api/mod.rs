@@ -99,10 +99,3 @@ impl Api {
         serde_json::from_str(&json)
     }
 }
-
-
-
-
-fn hashmap_to_encoded_url(params: HashMap<String, String>) -> String{
-    "foobar".to_string()
-}
