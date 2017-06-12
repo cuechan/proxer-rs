@@ -60,8 +60,9 @@ impl Api {
         let url = "info/fullentry";
 
         let mut post = postparams::Postparams::new();
-
         post.add("id", id);
+
+
 
 
         response::Response::new::<info::fullinfo::FullInfo>(self.http_req(url, post))
@@ -74,7 +75,7 @@ impl Api {
 
 
 
-    fn http_req<T: ToString>(self, url: &str, data: T) -> Result<client::response::Response, hyper::Error> {
+    fn http_req(self, url: &str, data: postparams::Postparams) -> Result<client::response::Response, hyper::Error> {
         let uri = self.base_uri.to_string()+url;
         let hyper_url = hyper::Url::parse(&uri).unwrap();
 
