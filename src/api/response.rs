@@ -1,24 +1,26 @@
+use std;
 use std::option::Option;
-use hyper;
-use hyper::client::response;
+use hyper::client;
+use serde_json;
+
+
 
 
 pub struct Response {
-    data: String,
-    http_status: i32,
+    json: serde_json::Value,
 }
 
 
 
 impl Response {
-    pub fn new<T>(hyper_res: Result<response::Response, hyper::Error>) -> Result<response::Response, hyper::Error> {
-        match hyper_res {
-            Ok(e) => {
-                Ok(e)
-            }
-            Err(e) => {
-                Err(e)
-            }
+    pub fn new(json: String) -> Self {
+        Response {
+            json: serde_json::from_str(&json).unwrap()
+        }
+    }
+    pub fn new_hyper_res(json: String) -> Self {
+        Response {
+            json: serde_json::from_str(&json).unwrap()
         }
     }
 }

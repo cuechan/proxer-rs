@@ -1,18 +1,19 @@
 #[allow(unused)]
-pub mod entity;
-pub mod http;
-pub mod response;
-pub mod postparams;
-
 extern crate hyper;
 extern crate serde_json;
 extern crate urlencoded;
+
+pub mod entity;
+pub mod response;
+pub mod postparams;
+pub mod error;
 
 use hyper::client;
 use hyper::mime::Mime;
 use std;
 use std::collections::HashMap;
 use std::fmt::Debug;
+use std::fmt::Error;
 use std::io::Read;
 use std::option::Option;
 use std::process::exit;
@@ -34,7 +35,6 @@ pub struct Api {
 
 #[allow(unused)]
 impl Api {
-    
     /// Create a new api client
     pub fn new(api_key: String) -> Api {
         let crates_version = &std::env::var("CARGO_PKG_VERSION")
@@ -55,11 +55,22 @@ impl Api {
     }
 
 
+
+
+
+    //           _____ _____       _____      _ _
+    //     /\   |  __ \_   _|     / ____|    | | |
+    //    /  \  | |__) || |______| |     __ _| | |___
+    //   / /\ \ |  ___/ | |______| |    / _` | | / __|
+    //  / ____ \| |    _| |_     | |___| (_| | | \__ \
+    // /_/    \_\_|   |_____|     \_____\__,_|_|_|___/
+
+
     /// Get the full information for an anime or manga
     ///
     /// See [Proxer wiki](http://proxer.me/wiki/Proxer_API/v1/Info#Get_Full_Entry)
 
-    pub fn info_get_full_info(self, id: u32) -> Result<client::response::Response, hyper::Error> {
+    pub fn info_get_full_info(self, id: u32) -> Result<entity::response::info::fullinfo::FullInfo, error::Error> {
         use api::entity::response::*;
         let url = "info/fullentry";
 
@@ -68,49 +79,64 @@ impl Api {
 
         let response = self.http_req(url, &post);
 
-        response
-    }
+        if response.is_err() {
+            let http_error = error::http::Http(response.unwrap_err());
+
+            let error = error::Error::Http(http_error);
+
+            return Err(error);
+        }
 
 
-    /// Get basic anime or manga information
-    ///
-    /// See [Proxer wiki](http://proxer.me/wiki/Proxer_API/v1/Info#Get_Entry)
-    pub fn info_get_entry(self, id: u32) -> Result<client::response::Response, hyper::Error> {
-        use api::entity::response::*;
-        let url = "info/entry";
+        Ok(1)
 
-        let mut post = postparams::Postparams::new();
-        post.add("id", id);
-
-        let response = self.http_req(url, &post);
-
-        response
-    }
-
-
-    /// Get the different names of an anime or manga
-    ///
-    /// See [Proxer wiki](http://proxer.me/wiki/Proxer_API/v1/Info#Get_Names)
-    pub fn info_get_names(self, id: u32) -> Result<client::response::Response, hyper::Error> {
-        use api::entity::response::*;
-        let url = "info/names";
-
-        let mut post = postparams::Postparams::new();
-        post.add("id", id);
-
-        let response = self.http_req(url, &post);
-
-        response
+        
     }
 
 
 
 
+    //
+    //
+    // /// Get basic anime or manga information
+    // ///
+    // /// See [Proxer wiki](http://proxer.me/wiki/Proxer_API/v1/Info#Get_Entry)
+    // pub fn info_get_entry(self, id: u32) -> Option<response::Response> {
+    //     use api::entity::response::*;
+    //     let url = "info/entry";
+    //
+    //     let mut post = postparams::Postparams::new();
+    //     post.add("id", id);
+    //
+    //     let response = self.http_req(url, &post);
+    //
+    //     info::fullinfo::FullInfo::from_api(response)
+    // }
+    //
+    //
+    // /// Get the different names of an anime or manga
+    // ///
+    // /// See [Proxer wiki](http://proxer.me/wiki/Proxer_API/v1/Info#Get_Names)
+    // pub fn info_get_names(self, id: u32) -> Option<response::Response> {
+    //     use api::entity::response::*;
+    //     let url = "info/names";
+    //
+    //     let mut post = postparams::Postparams::new();
+    //     post.add("id", id);
+    //
+    //     let response = self.http_req(url, &post);
+    //
+    //     response::Response::new(response)
+    // }
 
 
 
 
-    fn http_req(self, url: &str, data: &postparams::Postparams) -> Result<client::response::Response, hyper::Error> {
+
+
+
+
+    fn http_req(self, url: &str, data: &postparams::Postparams) -> Result<client::Response, hyper::Error> {
         let uri = self.base_uri.to_string()+url;
         let hyper_url = hyper::Url::parse(&uri).unwrap();
 

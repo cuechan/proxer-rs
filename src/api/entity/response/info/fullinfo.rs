@@ -1,6 +1,11 @@
-use std::vec::Vec;
+use api;
 use api::entity;
+use hyper;
+use hyper::client;
 use serde_json;
+use std::option::Option;
+use std::vec;
+
 
 
 #[allow(unused)]
@@ -29,7 +34,7 @@ pub struct FullInfo {
 
 
 impl FullInfo {
-    pub fn new_from_json(data: serde_json::Value) {
-        unimplemented!();
-    }
+    // pub fn from_json(data: serde_json::Value) -> Self {
+    //
+    // }
 }
