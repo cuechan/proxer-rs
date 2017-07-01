@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Paul Maruhn <paulmaruhn@gmail.com>"]
 
 [dependencies]
-hyper = "0.10.10"
+hyper = "0.11"
 serde_json = "*"
-urlencoded = "*"
+tokio-core = "0.1.8"
+futures = "0.1.14"

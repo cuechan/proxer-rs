@@ -1,6 +1,7 @@
 use std;
 use std::collections::HashMap;
 use std::fmt;
+use hyper;
 
 
 
@@ -50,3 +51,21 @@ impl fmt::Display for Postparams {
         write!(f, "{}", pairs.join("&"))
     }
 }
+
+// impl std::convert::Into<hyper::Body> for Postparams {
+//     fn into(self) -> hyper::Body {
+//         println!("Display");
+//         println!("to_string");
+//
+//         let params = &self.params;
+//         let mut pairs = Vec::new();
+//
+//
+//         for (key, value) in params {
+//             pairs.push(format!("{}={}", key, &value));
+//         }
+//
+//         pairs.join("&")
+//
+//     }
+// }
