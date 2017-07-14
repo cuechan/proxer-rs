@@ -13,8 +13,6 @@ pub struct Postparams {
 #[allow(unused)]
 impl Postparams {
     pub fn new() -> Self {
-        println!("{}", line!());
-
         Postparams {
             params: HashMap::new()
         }
@@ -22,8 +20,6 @@ impl Postparams {
 
 
     pub fn add<T: ToString, B: ToString>(&mut self, key: T, value: B) -> &mut Self {
-        println!("{}", line!());
-
         self.params.insert(key.to_string(), value.to_string());
         self
     }
@@ -37,8 +33,6 @@ impl Postparams {
 
 impl fmt::Display for Postparams {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> fmt::Result {
-        println!("Display");
-        println!("to_string");
 
         let params = &self.params;
         let mut pairs = Vec::new();
