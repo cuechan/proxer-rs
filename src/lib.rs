@@ -3,10 +3,12 @@
 #![allow(warnings)]
 
 
-#[macro_use] extern crate reqwest;
 #[macro_use] extern crate log;
-extern crate hyper;
+#[macro_use] extern crate reqwest;
+#[macro_use] extern crate serde_derive;
+#[macro_use] extern crate serde;
 extern crate futures;
+extern crate hyper;
 extern crate serde_json;
 extern crate tokio_core;
 

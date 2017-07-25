@@ -1,18 +1,19 @@
-#[allow(unused)]
-pub mod response;
-pub mod postparams;
+#![allow(unused)]
 pub mod error;
+pub mod postparams;
+pub mod types;
 
 use hyper;
 use reqwest;
 use reqwest::IntoUrl;
 use serde_json;
 use std;
+use std::collections::HashMap;
 use std::process::exit;
 use std::result::Result;
+use std::thread;
+use std::time;
 use tokio_core;
-use std::collections::HashMap;
-
 
 
 
@@ -22,8 +23,20 @@ pub struct Api {
     api_key: &'static str,
     base_uri: &'static str,
     client: reqwest::Client,
-    login_token: String,
+    last_request: time::Instant,
+    login_token: Option<bool>,
     user_agent: String,
+    api_request_sleep: time::Duration,
+}
+
+
+
+// Struct for storing api response without parsing type specific data
+#[derive(Debug, Deserialize)]
+struct Response {
+    pub error: i64,
+    pub message: String,
+    pub data: serde_json::Value,
 }
 
 
@@ -39,43 +52,15 @@ impl Api {
 
 
         Api {
-            api_key:     api_key,
-            base_uri:    "http://proxer.me/api/v1/",
-            client:      reqwest::Client::new().expect("failed to create client"),
-            login_token: "None".to_string(),
-            user_agent:  ua
+            api_key:           api_key,
+            base_uri:          "http://proxer.me/api/v1/",
+            client:            reqwest::Client::new().expect("failed to create client"),
+            last_request:      time::Instant::now(),
+            login_token:       None,
+            user_agent:        ua,
+            api_request_sleep: time::Duration::from_secs(5),
         }
     }
-
-
-
-    /// Get the full information for an anime or manga
-    ///
-    /// See [Proxer wiki](http://proxer.me/wiki/Proxer_API/v1/Info#Get_Full_Entry)
-
-    pub fn info_get_full_info(&mut self, id: u64) -> Option<response::Response> {
-        let url = "info/fullentry";
-        id.to_owned();
-
-
-        let mut post = HashMap::<&str, String>::new();
-        post.insert("id", id.to_string());
-
-
-        let res = self.http_req(url, post);
-        warn!("request done");
-
-        let response = res.unwrap();
-
-        warn!("{:?}", response.status());
-
-        response::Response::from_response(response)
-    }
-
-
-
-
-
 
 
     fn http_req(&mut self, url: &str, mut data: HashMap<&str, String>) -> reqwest::Result<reqwest::Response> {
@@ -91,11 +76,58 @@ impl Api {
         let mut req = self.client.request(reqwest::Method::Post, uri.into_url().unwrap());
 
 
+        // check if we have to sleep
+
+        thread::sleep(self.need_sleep());
+        self.last_request = time::Instant::now();
+
+
         let foo = req.headers(headers).form(&data);
         foo.send()
     }
 
-    pub fn read_json(json: String) -> std::result::Result<serde_json::Value, serde_json::Error> {
-        serde_json::from_str(&json)
+
+    fn need_sleep(&self) -> time::Duration {
+        let delta = std::time::Instant::now() - self.last_request;
+
+        if delta > self.api_request_sleep {
+            time::Duration::from_secs(0)
+        }
+        else {
+            self.api_request_sleep - delta
+        }
     }
+
+
+
+
+
+
+    // Here the api access methods begin
+    
+
+    /// Get the full information for an anime or manga
+    ///
+    /// See [Proxer wiki](http://proxer.me/wiki/Proxer_API/v1/Info#Get_Full_Entry)
+
+    pub fn info_get_full_info(&mut self, id: i64) -> Result<types::FullInfo, error::Error> {
+        let url = "info/fullentry";
+        // id.to_owned();
+
+
+        let mut post = HashMap::<&str, String>::new();
+        post.insert("id", id.to_string());
+
+
+        let http_res = self.http_req(url, post);
+
+        let res: Response = match serde_json::from_reader(http_res.unwrap()) {
+            Err(e) => return Err(error::Error::Json),
+            Ok(r) => r,
+        };
+
+
+        types::FullInfo::from_api(res.data)
+    }
+
 }
