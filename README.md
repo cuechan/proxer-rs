@@ -1,4 +1,4 @@
-# libproxer-rust [![Build Status](https://travis-ci.org/cuechan/libproxer-rust.svg?branch=master)](https://travis-ci.org/cuechan/libproxer-rust)
+# libproxer-rust [![Build Status](https://travis-ci.org/cuechan/proxer-rs.svg?branch=master)](https://travis-ci.org/cuechan/proxer-rs)
 This is a small project to learn some rust basics. I don't expect that this will ever be ~stable~ ready for production use.
 
 
