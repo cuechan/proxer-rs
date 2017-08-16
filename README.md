@@ -5,9 +5,22 @@ This is a small project to learn some rust basics. I don't expect that this will
 # Accessing the Proxer API
 
 ```rust
-  let prxr = Proxer::api::Api::new("your_api_key_here".to_string);
+  let prxr = proxer::Api::new("");
 
-  let fullinfo: = prxr.info_get_full_info(53);
+
+  let foo = self.info_api.info_get_full_info(42);
+
+  if foo.is_err() {
+      match foo.unwrap_err() {
+          proxer::error::Error::Http => println!("interwebs error"),
+          proxer::error::Error::Json => println!("I cant understand your Json"),
+          proxer::error::Error::Api(e) => println!("API error: {}", e),
+          proxer::error::Error::Unknown => println!("i dont know what happened"),
+      }
+  }
+
+  // everything went fine
+  println!("{:#?}", foo.unwrap());
 ```
 
 This example creates a api object and fetches the full data for an entry
