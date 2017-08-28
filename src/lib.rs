@@ -3,13 +3,17 @@
 #![allow(warnings)]
 #![allow(unused)]
 
-#[macro_use] extern crate log;
-#[macro_use] extern crate reqwest;
-#[macro_use] extern crate serde_derive;
-#[macro_use] extern crate serde;
-#[macro_use] extern crate chrono;
+#[macro_use]
+extern crate log;
+#[macro_use]
+extern crate reqwest;
+#[macro_use]
+extern crate serde_derive;
+#[macro_use]
+extern crate serde;
+#[macro_use]
+extern crate chrono;
 extern crate futures;
-extern crate hyper;
 extern crate serde_json;
 extern crate tokio_core;
 
@@ -17,9 +21,15 @@ pub mod error;
 pub mod types;
 pub mod request;
 pub mod response;
+pub mod api;
+pub mod prelude;
 
-use error::api;
+use prelude::*;
+use reqwest::{Url, Method};
 use reqwest::IntoUrl;
+use reqwest::Request;
+use reqwest::header;
+use serde_json::Value;
 use std::collections::HashMap;
 use std::process::exit;
 use std::result::Result;
@@ -29,23 +39,18 @@ use std::time;
 
 
 
-#[derive(Debug)]
+const API_BASE_PATH: &str = "http://proxer.me/api/v1/";
+
+
+
+#[derive(Debug, Clone)]
 pub struct Api {
     api_key: &'static str,
     base_uri: &'static str,
-    client: reqwest::Client,
     user_agent: String,
 }
 
 
-
-// Struct for storing api response without parsing type specific data
-#[derive(Debug, Deserialize)]
-struct Response {
-    pub error: i64,
-    pub message: String,
-    pub data: serde_json::Value,
-}
 
 
 #[allow(unused)]
@@ -58,162 +63,52 @@ impl<'a> Api {
 
         let ua = format!("libproxer-rust({}/v{})", crates_name, crates_version);
 
-
-        Api {
-            api_key:           api_key,
-            base_uri:          "http://proxer.me/api/v1/",
-            client:            reqwest::Client::new().expect("failed to create client"),
-            user_agent:        ua,
+        Self {
+            api_key: api_key,
+            base_uri: API_BASE_PATH,
+            user_agent: ua,
         }
     }
 
 
-    fn request(&mut self, mut request: request::Request) -> reqwest::Result<reqwest::Response> {
-        let uri = self.base_uri.to_string() + request.url;
 
+    // add few parameters (api-key) and fire up the request.
+    // do the error handling and parsing stuff
+    // hand back a Json-Value with the actuall data
 
-        request.add_parameter("api_key", self.api_key.to_owned());
+    pub fn execute(mut self, mut request: request::Request) -> Result<response::Response, error::Error> {
+        let url = Url::parse(&(self.base_uri.to_string() + request.clone().get_url())).unwrap();
+        let orig_request = request.clone();
 
-        let mut headers: reqwest::header::Headers = reqwest::header::Headers::new();
-        headers.set(reqwest::header::UserAgent(self.user_agent.to_owned()));
+        request.set_parameter("api_key", self.api_key.to_string());
+
+        let mut headers = reqwest::header::Headers::new();
+        headers.set(header::UserAgent::new(self.user_agent));
         headers.set(reqwest::header::ContentType::form_url_encoded());
 
-        let mut req = self.client.request(reqwest::Method::Post, uri.into_url().unwrap());
+
+
+        let client = reqwest::Client::new().unwrap();
 
 
 
-        let foo = req.headers(headers).form(&request.get_paramter());
-        foo.send()
-    }
+        let response = client.post(url).unwrap()
+            .form(&request.get_paramter()).unwrap()
+            .headers(headers)
+            .send();
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Here the api access methods begin
-
-
-    /// Get the full information for an anime or manga
-    ///
-    /// See [Proxer wiki](http://proxer.me/wiki/Proxer_API/v1/Info#Get_Full_Entry)
-
-    pub fn info_get_full_info(&mut self, id: i64) -> Result<types::FullInfo, error::Error> {
-        let url = "info/fullentry";
-
-
-        let mut request = request::Request::new(url);
-        request.add_parameter("id", id.to_string());
-
-
-        let res = self.request(request);
-
-
-        // HTTP error?
-        if res.is_err() {
-            return Err(error::Error::Http)
+        match response {
+            Err(e) => {
+                println!("{:#?}", e);
+                Err(error::Error::Http)
+            },
+            Ok(mut r) => {
+                match r.json() {
+                    Err(e) => Err(error::Error::Json),
+                    Ok(json) => Ok(response::Response::new(orig_request, json))
+                }
+            }
         }
-
-
-        // JSON error?
-        let json: serde_json::Value = match serde_json::from_reader(res.unwrap()) {
-            Err(e) => return Err(error::Error::Json),
-            Ok(r) => r
-        };
-
-
-        // API error?
-        let error_code = json.get("error").unwrap().as_i64().unwrap();
-
-        if error_code != 0 {
-            let err = error::api::Api::from(json);
-            return Err(error::Error::Api(err));
-        }
-
-
-
-
-        // when everything went fine:
-
-        let data: serde_json::Value = json.get("data").unwrap().clone();
-
-        Ok(types::FullInfo::from(data))
-
-
-        // Err(error::Error::Unknown)
-    }
-
-
-
-
-
-
-    pub fn info_get_comments(&mut self, id: i64) -> Result<Vec<types::Comment>, error::Error> {
-        let url = "info/comments";
-
-        let mut request = request::Request::new(url);
-        request.add_parameter("id", id.to_string());
-
-
-        let res = self.request(request);
-
-
-        // HTTP error?
-        if res.is_err() {
-            return Err(error::Error::Http)
-        }
-
-
-        // JSON error?
-        let json: serde_json::Value = match serde_json::from_reader(res.unwrap()) {
-            Err(e) => return Err(error::Error::Json),
-            Ok(r) => r
-        };
-
-
-        // API error?
-        let error_code = json.get("error").unwrap().as_i64().unwrap();
-
-        if error_code != 0 {
-            let err = error::api::Api::from(json);
-            return Err(error::Error::Api(err));
-        }
-
-
-
-
-        // when everything went fine:
-
-        let mut comments = Vec::new();
-
-        let batch = json.get("data").unwrap().as_array().unwrap();
-
-        for raw_comment in batch {
-            comments.insert(0, types::Comment::from(raw_comment.clone()));
-        }
-
-
-        Ok(comments)
     }
 }
