@@ -20,14 +20,12 @@ extern crate tokio_core;
 pub mod error;
 pub mod types;
 pub mod request;
-pub mod response;
 pub mod api;
 pub mod prelude;
 
 use prelude::*;
 use reqwest::{Url, Method};
 use reqwest::IntoUrl;
-use reqwest::Request;
 use reqwest::header;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -44,7 +42,7 @@ const API_BASE_PATH: &str = "http://proxer.me/api/v1/";
 
 
 #[derive(Debug, Clone)]
-pub struct Api {
+pub struct Proxer {
     api_key: &'static str,
     base_uri: &'static str,
     user_agent: String,
@@ -54,7 +52,7 @@ pub struct Api {
 
 
 #[allow(unused)]
-impl<'a> Api {
+impl<'a> Proxer {
     /// Create a new api client
     pub fn new(api_key: &'static str) -> Self {
         let crates_version = &std::env::var("CARGO_PKG_VERSION").unwrap_or("unknown".to_string());
@@ -76,7 +74,7 @@ impl<'a> Api {
     // do the error handling and parsing stuff
     // hand back a Json-Value with the actuall data
 
-    pub fn execute(mut self, mut request: request::Request) -> Result<response::Response, error::Error> {
+    pub fn execute(mut self, mut request: request::Request) -> Result<reqwest::Response, error::Error> {
         let url = Url::parse(&(self.base_uri.to_string() + request.clone().get_url())).unwrap();
         let orig_request = request.clone();
 
@@ -92,23 +90,39 @@ impl<'a> Api {
 
 
 
-        let response = client.post(url).unwrap()
-            .form(&request.get_paramter()).unwrap()
+        let response = client
+            .post(url)
+            .unwrap()
+            .form(&request.get_paramter())
+            .unwrap()
             .headers(headers)
             .send();
 
 
         match response {
             Err(e) => {
-                println!("{:#?}", e);
+                info!("request unsuccessfull");
                 Err(error::Error::Http)
-            },
-            Ok(mut r) => {
-                match r.json() {
-                    Err(e) => Err(error::Error::Json),
-                    Ok(json) => Ok(response::Response::new(orig_request, json))
-                }
+            }
+            Ok(request) => {
+                info!("request was successfull");
+                Ok(request)
             }
         }
     }
+
+
+    pub fn api(self) -> api::Api {
+        api::Api(self)
+    }
+}
+
+
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ApiResponse {
+    error: i64,
+    message: String,
+    data: Option<Value>,
+    code: Option<i64>,
 }

@@ -1,9 +1,8 @@
-use hyper;
-use hyper::client;
 use std::option::Option;
 use std;
 use std::fmt;
 use serde_json;
+use ApiResponse;
 
 
 
@@ -32,9 +31,9 @@ pub enum Errcode {
     MISSING_LOGIN_CREDENTIALS,
     INVALID_LOGIN_CREDENTIALS,
     INVALID_ID,
+    INVALID_UID,
     USER_NOT_LOGGED_IN,
-    USER_ID_NOT_FOUND,
-
+    USER_NOT_FOUND,
     USER_ALREADY_LOGGED_IN,
 }
 
@@ -53,15 +52,13 @@ impl Errcode {
             1007 => Errcode::PROXER_MAINTENANCE,
             1008 => Errcode::API_MAINTENANCE,
 
-
             2000 => Errcode::IP_BLOCKED,
             2001 => Errcode::NEWS_ERROR,
-
 
             3000 => Errcode::MISSING_LOGIN_CREDENTIALS,
             3001 => Errcode::INVALID_LOGIN_CREDENTIALS,
             3002 => Errcode::USER_NOT_LOGGED_IN,
-            3003 => Errcode::USER_ID_NOT_FOUND,
+            3003 => Errcode::USER_NOT_FOUND,
             3004 => Errcode::USER_NOT_LOGGED_IN,
             3007 => Errcode::INVALID_ID,
             3009 => Errcode::USER_NOT_LOGGED_IN,
@@ -104,14 +101,14 @@ impl fmt::Display for Errcode {
 #[derive(Debug, Clone)]
 pub struct Api {
     code: i64,
-    message: String
+    message: String,
 }
 
 impl Api {
     pub fn new(code: i64, msg: String) -> Self {
         Api {
             code: code,
-            message: msg
+            message: msg,
         }
     }
 }
@@ -127,6 +124,16 @@ impl From<serde_json::Value> for Api {
         Self {
             code: error,
             message: msg.to_string(),
+        }
+    }
+}
+
+
+impl From<ApiResponse> for Api {
+    fn from(res: ApiResponse) -> Self {
+        Self {
+            code: res.code.unwrap(),
+            message: res.message.to_string(),
         }
     }
 }

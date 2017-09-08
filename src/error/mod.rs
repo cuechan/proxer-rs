@@ -18,7 +18,7 @@ impl Error {
             Error::Api(_) => true,
             Error::Json => false,
             Error::Http => false,
-            _ => false
+            _ => false,
         }
     }
 
@@ -27,7 +27,7 @@ impl Error {
             Error::Api(_) => false,
             Error::Json => false,
             Error::Http => true,
-            _ => false
+            _ => false,
         }
     }
 
@@ -36,7 +36,7 @@ impl Error {
             Error::Api(_) => false,
             Error::Json => true,
             Error::Http => false,
-            _ => false
+            _ => false,
         }
     }
 }
