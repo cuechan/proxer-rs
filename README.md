@@ -8,7 +8,7 @@ This is a small project to learn some rust basics. I don't expect that this will
   let prxr = proxer::Api::new("");
 
 
-  let foo = self.info_api.info.get_full_info(42);
+  let foo = prxr.info_api.info.get_full_info(42);
 
   if foo.is_err() {
       match foo.unwrap_err() {
