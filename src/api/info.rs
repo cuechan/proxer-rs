@@ -23,19 +23,29 @@ use std::thread;
 use std::time;
 use types;
 use prelude::*;
+use std::rc::Rc;
+use std::ops::Deref;
 
 
+pub struct Info<'a> {
+    pub proxer: Proxer<'a>
+}
 
-pub struct Info (pub Proxer);
 
-impl Info {
+impl<'a> Info<'a> {
     pub fn get_fullentry(self, eid: InfoID) -> Result<types::FullEntry, error::Error> {
         let mut request = request::Request::new("info/fullentry");
+
+        let proxer = self.proxer;
 
         request.set_parameter("id", eid);
 
 
-        let res = self.0.execute(request);
+        let res = proxer.execute(request);
+
+
+
+
 
         if res.is_err() {
             return Err(res.err().unwrap());
@@ -58,8 +68,9 @@ impl Info {
             return Err(error::Error::Api(error::api::Api::from(json)))
         }
 
-        
 
-        Err(error::Error::Unknown)
+        let fullentry = types::FullEntry::from(json.data.unwrap());
+
+        Ok(fullentry)
     }
 }

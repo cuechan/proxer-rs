@@ -33,6 +33,7 @@ use std::process::exit;
 use std::result::Result;
 use std::thread;
 use std::time;
+use std::rc::Rc;
 
 
 
@@ -42,9 +43,9 @@ const API_BASE_PATH: &str = "http://proxer.me/api/v1/";
 
 
 #[derive(Debug, Clone)]
-pub struct Proxer {
-    api_key: &'static str,
-    base_uri: &'static str,
+pub struct Proxer<'a> {
+    api_key: &'a str,
+    base_uri: &'a str,
     user_agent: String,
 }
 
@@ -52,9 +53,9 @@ pub struct Proxer {
 
 
 #[allow(unused)]
-impl<'a> Proxer {
+impl<'a> Proxer<'a> {
     /// Create a new api client
-    pub fn new(api_key: &'static str) -> Self {
+    pub fn new(api_key: &'a str) -> Self {
         let crates_version = &std::env::var("CARGO_PKG_VERSION").unwrap_or("unknown".to_string());
         let crates_name = std::env::var("CARGO_PKG_NAME").unwrap_or("unknown".to_string());
 
@@ -70,21 +71,20 @@ impl<'a> Proxer {
 
 
 
-    // add few parameters (api-key) and fire up the request.
-    // do the error handling and parsing stuff
-    // hand back a Json-Value with the actuall data
 
-    pub fn execute(mut self, mut request: request::Request) -> Result<reqwest::Response, error::Error> {
+    pub fn execute(self, mut request: request::Request) -> Result<reqwest::Response, error::Error> {
         let url = Url::parse(&(self.base_uri.to_string() + request.clone().get_url())).unwrap();
-        let orig_request = request.clone();
 
-        request.set_parameter("api_key", self.api_key.to_string());
+
+
 
         let mut headers = reqwest::header::Headers::new();
-        headers.set(header::UserAgent::new(self.user_agent));
+
+        headers.set(header::UserAgent::new(self.user_agent.to_string()));
         headers.set(reqwest::header::ContentType::form_url_encoded());
 
 
+        request.set_parameter("api_key", self.api_key.to_string());
 
         let client = reqwest::Client::new().unwrap();
 
@@ -97,6 +97,7 @@ impl<'a> Proxer {
             .unwrap()
             .headers(headers)
             .send();
+
 
 
         match response {
@@ -112,8 +113,10 @@ impl<'a> Proxer {
     }
 
 
-    pub fn api(self) -> api::Api {
-        api::Api(self)
+    pub fn api(&self) -> api::Api<'a> {
+        api::Api{
+            proxer: self.clone()
+        }
     }
 }
 
@@ -121,8 +124,8 @@ impl<'a> Proxer {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct ApiResponse {
-    error: i64,
-    message: String,
-    data: Option<Value>,
-    code: Option<i64>,
+    pub error: i64,
+    pub message: String,
+    pub data: Option<Value>,
+    pub code: Option<i64>,
 }

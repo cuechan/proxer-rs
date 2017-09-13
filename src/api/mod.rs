@@ -21,15 +21,22 @@ use std::process::exit;
 use std::thread;
 use std::time;
 use types;
+use std::rc::Rc;
 
 
 // low level stuff and api endpoint definitions
 
-pub struct Api (pub Proxer);
+
+#[derive(Debug, Clone)]
+pub struct Api<'a> {
+    pub proxer: Proxer<'a>
+}
 
 
-impl Api {
-    pub fn info(self) -> info::Info {
-        info::Info(self.0)
+impl<'a> Api<'a> {
+    pub fn info(self) -> info::Info<'a> {
+        info::Info {
+            proxer: self.proxer
+        }
     }
 }
