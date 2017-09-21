@@ -17,7 +17,6 @@ use std::process::exit;
 use std::result::Result;
 use std::thread;
 use std::time;
-use types;
 use prelude::*;
 
 
@@ -117,8 +116,8 @@ impl ToString for GetPublisher {
 #[derive(Debug, Clone)]
 pub struct GetListinfo {
     pub id: InfoID,
-    pub p: Option<u64>,
-    pub limit: Option<u64>,
+    pub p: Option<i64>,
+    pub limit: Option<i64>,
 }
 
 
@@ -126,8 +125,8 @@ pub struct GetListinfo {
 #[derive(Debug, Clone)]
 pub struct GetComments {
     pub id: InfoID,
-    pub p: Option<u64>,
-    pub limit: Option<u64>,
+    pub p: Option<i64>,
+    pub limit: Option<i64>,
     pub sort: Option<String>,
 }
 

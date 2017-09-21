@@ -11,31 +11,63 @@ use std::convert::From;
 use std::fmt;
 use std::thread;
 use std::time;
+use prelude::*;
 
 
 
 
 
-
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
 pub struct FullEntry {
     pub tags: Vec<Tag>,
     pub names: Vec<Name>,
+    pub id: i64,
+    pub description: String,
+    pub genre: Vec<String>,
+    pub fsk: Vec<String>,
+    pub medium: String,
+    pub count: i64,
+    pub state: i64,
+    pub rate_sum: i64,
+    pub rate_count: i64,
+    pub clicks: i64,
+    pub kat: Kat,
+    pub license: License,
 }
+
+
+#[derive(Debug, Deserialize)]
+pub struct RawFullEntry {
+    id: String,
+    names: Vec<Value>,
+    genre: String,
+    fsk: String,
+    description: String,
+    medium: String,
+    count: String,
+    state: String,
+    rate_sum: String,
+    rate_count: String,
+    clicks: String,
+    kat: String,
+    license: String,
+    tags: Vec<Value>
+}
+
 
 /// This currently DO NOT support error handling.
 /// I am wating for the TryFrom trait
 
 impl From<serde_json::Value> for FullEntry {
     fn from(serde_value: serde_json::Value) -> Self {
-        let data = serde_value.as_object().unwrap();
+        let raw: RawFullEntry = serde_json::from_value(serde_value).unwrap();
 
 
         // get the tags
         let mut tags = Vec::new();
 
-        for tag in serde_value.get("tags").unwrap().as_array().unwrap() {
-            tags.insert(0, Tag::from(tag.clone()));
+        for tag in raw.tags {
+            tags.push(Tag::from(tag));
         }
 
 
@@ -43,15 +75,61 @@ impl From<serde_json::Value> for FullEntry {
         // get the tags
         let mut names = Vec::new();
 
-        for name in serde_value.get("names").unwrap().as_array().unwrap() {
-            names.insert(0, Name::from(name.clone()));
+        for name in raw.names {
+            names.push(Name::from(name));
         }
+
+
+        let mut genres = Vec::new();
+
+        for var in raw.genre.split_whitespace() {
+            genres.push(var.to_string())
+        }
+
+
+        let mut fsk = Vec::new();
+
+        for var in raw.fsk.split_whitespace() {
+            fsk.push(var.to_string())
+        }
+
+
+        let kat: Kat = match raw.kat.as_str() {
+            "manga" => Kat::Manga,
+            "anime" => Kat::Anime,
+            _ => panic!("category is not known: {:?}", raw.kat)
+        };
+
+
+        let license: License = match raw.license.as_str() {
+            "0" => License::Unknown,
+            "1" => License::Unlicensed,
+            "2" => License::Unknown,
+            _ => panic!("category is not known: {:?}", raw.license)
+        };
+
 
 
 
         Self {
-            names: names,
+
+            // Vector types
             tags: tags,
+            genre: genres,
+            names: names,
+            fsk: fsk,
+
+            // simple types
+            id: raw.id.parse().unwrap(),
+            description: raw.description,
+            medium: raw.medium,
+            count: raw.count.parse().unwrap(),
+            state: raw.state.parse().unwrap(),
+            rate_sum: raw.rate_sum.parse().unwrap(),
+            rate_count: raw.rate_count.parse().unwrap(),
+            clicks: raw.clicks.parse().unwrap(),
+            kat: kat,
+            license: license,
         }
     }
 }
@@ -61,42 +139,90 @@ impl From<serde_json::Value> for FullEntry {
 
 
 
-
-
-
-
-
-
-
-
-
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
 pub struct Info {
     pub id: i64,
+    pub name: String,
     pub description: String,
+    pub genre: Vec<String>,
+    pub fsk: Vec<String>,
+    pub medium: String,
+    pub count: i64,
+    pub state: i64,
+    pub rate_sum: i64,
+    pub rate_count: i64,
+    pub clicks: i64,
+    pub kat: Kat,
+    pub license: License,
 }
+
+
+#[derive(Deserialize)]
+pub struct RawInfo {
+    id: String,
+    name: String,
+    genre: String,
+    fsk: String,
+    description: String,
+    medium: String,
+    count: String,
+    state: String,
+    rate_sum: String,
+    rate_count: String,
+    clicks: String,
+    kat: Value,
+    license: Value,
+}
+
+
 
 
 impl From<Value> for Info {
     fn from(serde_value: serde_json::Value) -> Self {
-        let data = serde_value.as_object().unwrap();
+        let raw = serde_json::from_value::<RawInfo>(serde_value).
+            expect("unable to parse response");
 
 
         // parse id
-        let id: i64 = data.get("id").unwrap().as_str().unwrap().parse().unwrap();
+        let id: i64 = raw.id.parse().unwrap();
 
 
         // parse description
-        let description = data.get("description")
-            .unwrap()
-            .as_str()
-            .unwrap()
-            .to_string();
+        let description = raw.description.clone();
+
+
+        let mut genres = Vec::new();
+
+        for var in raw.genre.split_whitespace() {
+            genres.push(var.to_string())
+        }
+
+
+        let mut fsk = Vec::new();
+
+        for var in raw.fsk.split_whitespace() {
+            fsk.push(var.to_string())
+        }
+
+
+        let kat: Kat = serde_json::from_value(raw.kat).unwrap();
+        let license: License = serde_json::from_value(raw.license).unwrap();
 
 
         Self {
-            id: id,
-            description: description,
+            id: raw.id.parse().unwrap(),
+            name: raw.name,
+            genre: genres,
+            fsk: fsk,
+            description: raw.description,
+            medium: raw.medium,
+            count: raw.count.parse().unwrap(),
+            state: raw.state.parse().unwrap(),
+            rate_sum: raw.rate_sum.parse().unwrap(),
+            rate_count: raw.rate_count.parse().unwrap(),
+            clicks: raw.clicks.parse().unwrap(),
+            kat: kat,
+            license: license,
         }
     }
 }
@@ -108,16 +234,29 @@ impl From<Value> for Info {
 
 
 
+#[derive(Debug, Clone)]
+pub struct UserList {
+    pub id: i64,
+    pub name: String,
+    pub description: String,
+    pub genre: Vec<String>,
+    pub fsk: Vec<String>,
+    pub medium: String,
+    pub count: i64,
+    pub state: i64,
+    pub rate_sum: i64,
+    pub rate_count: i64,
+    pub clicks: i64,
+    pub kat: Kat,
+    pub license: License,
+}
 
 
 
 
 
-
-
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Tag {
-    pub class: &'static str,
     pub info_id: Option<u64>,
     pub id: u64,
     pub tag_id: u64,
@@ -126,7 +265,6 @@ pub struct Tag {
     pub spoiler: bool,
     pub name: String,
     pub description: String,
-    pub tag_category: Option<String>,
 }
 
 
@@ -184,7 +322,6 @@ impl From<Value> for Tag {
         // return the data
 
         Self {
-            class: "Tag",
             id: id,
             tag_id: tag_id,
             info_id: info_id,
@@ -193,7 +330,6 @@ impl From<Value> for Tag {
             spoiler: spoiler,
             added: added,
             name: name,
-            tag_category: None,
         }
     }
 }
@@ -210,47 +346,36 @@ impl From<Value> for Tag {
 
 
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
 pub struct Name {
-    pub reference_id: i64,
+    pub info_id: i64,
     pub id: i64,
-    pub class: &'static str,
     pub name: String,
     pub nametype: String,
 }
 
 
+#[derive(Deserialize)]
+pub struct RawName {
+    id: String,
+    eid: String,
+    #[serde(rename = "type")]
+    type_name: String,
+    name: String
+}
+
+
 impl From<Value> for Name {
     fn from(serde_value: serde_json::Value) -> Self {
-        let data = serde_value.as_object().unwrap();
-
-
-
-        // parse id
-        let id: i64 = data.get("id").unwrap().as_str().unwrap().parse().unwrap();
-
-
-        // parse id
-        let reference_id: i64 = data.get("eid").unwrap().as_str().unwrap().parse().unwrap();
-
-
-        // parse description
-        let name = data.get("name").unwrap().as_str().unwrap().to_string();
-
-
-        // parse description
-        let nametype = data.get("type").unwrap().as_str().unwrap().to_string();
-
-
+        let raw: RawName = serde_json::from_value(serde_value).unwrap();
 
 
         // Dude, pass me the data!
         Self {
-            class: "Name",
-            id: id,
-            name: name,
-            nametype: nametype,
-            reference_id: reference_id,
+            info_id: raw.eid.parse().unwrap(),
+            id: raw.id.parse().unwrap(),
+            name: raw.name,
+            nametype: raw.type_name,
         }
     }
 }
@@ -353,6 +478,13 @@ impl From<Value> for Comment {
 }
 
 
+impl Into<UserID> for Comment {
+    fn into(self) -> UserID {
+        UserID::from(self.uid)
+    }
+}
+
+
 
 
 
@@ -385,11 +517,8 @@ impl From<Value> for Userinfo {
 
         Self {
             uid: data.get("uid").unwrap().as_str().unwrap().parse().unwrap(),
-
             username: data.get("username").unwrap().as_str().unwrap().to_string(),
-
             avatar: data.get("avatar").unwrap().as_str().unwrap().to_string(),
-
             status: data.get("status").unwrap().as_str().unwrap().to_string(),
 
             status_time: data.get("status_time")
@@ -440,4 +569,19 @@ impl From<Value> for Userinfo {
                 .unwrap(),
         }
     }
+}
+
+
+#[derive(Debug, Clone, Deserialize)]
+pub enum Kat {
+    Anime,
+    Manga
+}
+
+
+#[derive(Debug, Clone, Deserialize)]
+pub enum License {
+    Unknown,
+    Unlicensed,
+    Licensed
 }

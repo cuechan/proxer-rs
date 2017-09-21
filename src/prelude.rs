@@ -4,10 +4,10 @@
 #![allow(unused)]
 
 
-use std::string::ToString;
+use std;
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct UserID(u64);
 
 pub trait IsUserID<T> {
@@ -40,11 +40,11 @@ impl From<u64> for UserID {
 }
 
 
-// impl ToString for UserID {
-//     fn to_string(&self) -> String {
-//         self.to_string()
-//     }
-// }
+impl ToString for UserID {
+    fn to_string(&self) -> String {
+        self.0.to_string()
+    }
+}
 
 
 
@@ -86,5 +86,17 @@ impl From<u64> for InfoID {
 impl ToString for InfoID {
     fn to_string(&self) -> String {
         self.0.to_string()
+    }
+}
+
+
+impl std::str::FromStr for InfoID {
+    type Err = std::num::ParseIntError;
+
+    fn from_str(string: &str) -> Result<InfoID, Self::Err> {
+        match string.parse::<i64>() {
+            Ok(i) => Ok(InfoID::from(i)),
+            Err(e) => Err(e)
+        }
     }
 }

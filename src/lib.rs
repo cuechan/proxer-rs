@@ -18,7 +18,7 @@ extern crate serde_json;
 extern crate tokio_core;
 
 pub mod error;
-pub mod types;
+pub mod response;
 pub mod request;
 pub mod api;
 pub mod prelude;

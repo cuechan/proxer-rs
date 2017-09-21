@@ -4,6 +4,7 @@
 
 
 pub mod info;
+pub mod user;
 
 use Proxer;
 use chrono;
@@ -20,11 +21,12 @@ use std::collections::HashMap;
 use std::process::exit;
 use std::thread;
 use std::time;
-use types;
 use std::rc::Rc;
 
 
-// low level stuff and api endpoint definitions
+pub const DEFAULT_PAGER_PAGE: i64 = 0;
+pub const DEFAULT_PAGER_LIMIT: i64 = 250;
+
 
 
 #[derive(Debug, Clone)]
@@ -36,6 +38,12 @@ pub struct Api<'a> {
 impl<'a> Api<'a> {
     pub fn info(self) -> info::Info<'a> {
         info::Info {
+            proxer: self.proxer
+        }
+    }
+
+    pub fn user(self) -> user::User<'a> {
+        user::User {
             proxer: self.proxer
         }
     }

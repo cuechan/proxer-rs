@@ -1,10 +1,10 @@
 #![allow(dead_code)]
-#![allow(unused_imports)]
 #![allow(warnings)]
 #![allow(unused)]
 
 
 pub mod info;
+pub mod user;
 
 use error;
 use reqwest;
@@ -41,7 +41,6 @@ use std::iter::Zip;
 use std::process::exit;
 use std::thread;
 use std::time;
-use types;
 
 
 
@@ -81,15 +80,13 @@ impl<'a> Request<'a> {
         }
     }
 
-    pub fn set_parameter<T: ToString>(&mut self, parameter: &'a str, value: T) -> Self {
+    pub fn set_parameter<T: ToString>(&mut self, parameter: &'a str, value: T) {
         self.parameter.insert(parameter, value.to_string());
-        self.clone()
     }
 
 
-    pub fn remove_parameter(&mut self, parameter: &str) -> Self {
+    pub fn remove_parameter(&mut self, parameter: &str) {
         self.parameter.remove(parameter);
-        self.clone()
     }
 
 

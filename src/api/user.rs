@@ -1,42 +1,43 @@
 #![allow(dead_code)]
+#![deny(unused_imports)]
 #![allow(warnings)]
 #![allow(unused)]
 #![warn(missing_docs)]
 
 
+use Proxer;
 use ApiResponse;
 use chrono;
 use error;
-use error::api;
-use prelude::*;
-use Proxer;
 use request;
 use request::info::*;
 use reqwest;
 use reqwest::IntoUrl;
-use response::info;
 use serde_derive;
 use serde_json;
 use serde_json::Value;
 use std;
 use std::collections::HashMap;
-use std::ops::Deref;
 use std::process::exit;
-use std::rc::Rc;
 use std::thread;
 use std::time;
+use prelude::*;
+use std::rc::Rc;
+use std::ops::Deref;
+use response::user;
 
 
-pub struct Info<'a> {
+
+pub struct User<'a> {
     pub proxer: Proxer<'a>
 }
 
 
-impl<'a> Info<'a> {
-    pub fn get_fullentry(self, eid: InfoID) -> Result<info::FullEntry, error::Error> {
-        let mut request = request::Request::new("info/fullentry");
+impl<'a> User<'a> {
+    pub fn get_userinfo(self, uid: UserID) -> Result<user::Userinfo, error::Error> {
+        let mut request = request::Request::new("user/userinfo");
 
-        request.set_parameter("id", eid);
+        request.set_parameter("uid", uid);
 
 
         let res = self.proxer.execute(request);
@@ -67,21 +68,22 @@ impl<'a> Info<'a> {
         }
 
 
-        let fullentry = info::FullEntry::from(json.data.unwrap());
+        let userinfo = user::Userinfo::from(json.data.unwrap());
 
-        Ok(fullentry)
+        Ok(userinfo)
     }
 
 
 
 
 
-    pub fn get_comments(self, vars: request::info::GetComments) -> Result<Vec<info::Comment>, error::Error> {
-        let mut request = request::Request::new("info/comments");
+    pub fn get_list(self, vars: request::user::GetList) -> Result<Vec<user::GetList>, error::Error> {
+        let mut request = request::Request::new("user/list");
 
-        request.set_parameter("id", vars.id);
-        if vars.p.is_some() {
-            request.set_parameter("p", vars.p.unwrap());
+        match (vars.uid, vars.username) {
+            (Some(i), None)    => request.set_parameter("uid", i),
+            (None,    Some(i)) => request.set_parameter("username", i),
+            _                  => panic!("either username nor uid are given"),
         }
 
         match vars.p {
@@ -99,6 +101,11 @@ impl<'a> Info<'a> {
             Some(i) => request.set_parameter("sort", i),
             None => request.remove_parameter("sort")
         }
+
+
+
+
+
 
 
 
@@ -133,7 +140,7 @@ impl<'a> Info<'a> {
 
         let mut all_comments = Vec::new();
         for com in data {
-            all_comments.push(info::Comment::from(com));
+            all_comments.push(user::GetList::from(com));
         }
 
         Ok(all_comments)

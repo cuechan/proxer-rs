@@ -1,5 +1,4 @@
 #![allow(dead_code)]
-#![allow(unused_imports)]
 #![allow(warnings)]
 #![allow(unused)]
 
@@ -7,7 +6,6 @@
 use error;
 use reqwest;
 use reqwest::IntoUrl;
-use response::Response;
 use serde_derive;
 use serde_json;
 use serde;
@@ -15,12 +13,9 @@ use serde::Serializer;
 use std;
 use std::collections::HashMap;
 use std::process::exit;
-use std::result::Result;
 use std::thread;
 use std::time;
-use types;
 use prelude::*;
-use request::Pageable;
 
 
 
@@ -61,7 +56,7 @@ pub struct GetTopten {
 
 #[derive(Debug, Clone)]
 pub struct GetList {
-    pub uid: Option<InfoID>,
+    pub uid: Option<UserID>,
     pub username: Option<String>,
     pub kat: Option<String>,
     pub search: Option<String>,
@@ -70,7 +65,7 @@ pub struct GetList {
     pub filter: Option<u64>,
     pub sort: Option<String>,
 
-    pub p: Option<u64>,
+    pub p: Option<i64>,
     pub limit: Option<u64>,
 }
 
