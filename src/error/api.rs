@@ -2,8 +2,7 @@ use std::option::Option;
 use std;
 use std::fmt;
 use serde_json;
-use ApiResponse;
-
+use client;
 
 
 
@@ -129,8 +128,8 @@ impl From<serde_json::Value> for Api {
 }
 
 
-impl From<ApiResponse> for Api {
-    fn from(res: ApiResponse) -> Self {
+impl From<client::ApiResponse> for Api {
+    fn from(res: client::ApiResponse) -> Self {
         Self {
             code: res.code.unwrap(),
             message: res.message.to_string(),

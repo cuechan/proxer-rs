@@ -1,3 +1,6 @@
+#![warn(missing_docs)]
+
+
 use error;
 use prelude::*;
 use request;
@@ -9,7 +12,7 @@ use serde_json::Value;
 use std;
 use std::collections::HashMap;
 use api;
-use api::info::Request;
+use Request;
 
 
 
@@ -17,7 +20,7 @@ use api::info::Request;
 const API_BASE_PATH: &str = "http://proxer.me/api/v1/";
 
 
-
+/// Client that holds the api key and sends requests
 #[derive(Debug, Clone)]
 pub struct Client<'a> {
     api_key: &'a str,
@@ -47,9 +50,9 @@ impl<'a> Client<'a> {
 
 
 
-
-    pub fn execute<T: Request + Clone>(self, request: T) -> Result<reqwest::Response, error::Error> {
-        let url = Url::parse(&(self.base_uri.to_string() + &request.get_url())).unwrap();
+    /// execute a request that satisfies [Request](../trait.Request.html)
+    pub fn execute<T: Request + Clone, E>(self, endpoint: T) -> Result<Value, error::Error> {
+        let url = Url::parse(&(self.base_uri.to_string() + &endpoint.clone().get_url())).unwrap();
 
 
 
@@ -60,11 +63,10 @@ impl<'a> Client<'a> {
         headers.set(reqwest::header::ContentType::form_url_encoded());
 
 
-        let parameter = request.get_data().clone();
+        let mut parameter = endpoint.get_data().clone();
         parameter.insert("api_key".to_string(), self.api_key.to_string());
 
         let client = reqwest::Client::new().unwrap();
-
 
 
         let response = client
@@ -76,31 +78,43 @@ impl<'a> Client<'a> {
             .send();
 
 
+        // let api_response;
 
         match response {
-            Err(e) => {
-                info!("request unsuccessfull");
-                Err(error::Error::Http)
-            }
-            Ok(request) => {
-                info!("request was successfull");
-                Ok(request)
+            Err(e) => return Err(error::Error::Http),
+            // I know, it looks horrible down here...
+            Ok(mut res) => {
+                match res.json::<ApiResponse>() {
+                    Err(e) => return Err(error::Error::Json),
+                    Ok(r) => Ok(r.data.unwrap()),
+                }
             }
         }
+
+        //
+        // println!("{:#?}", api_response);
+        //
+        // return Ok(endpoint.parse(api_response.data.unwrap()));
+        // Err(error::Error::Unknown)
     }
 
-
+    /// shortcut for creating common requests
     pub fn api(&self) -> api::Api<'a> {
         api::Api { client: self.clone() }
     }
 }
 
 
-
+/// responses are parsed into ApiRequest
 #[derive(Debug, Clone, Deserialize)]
 pub struct ApiResponse {
+    /// api error
     pub error: i64,
+    /// api message
     pub message: String,
+    /// actual data
     pub data: Option<Value>,
+    /// optional error code
+    /// in case of an error this contains the error code
     pub code: Option<i64>,
 }

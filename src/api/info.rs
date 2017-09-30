@@ -1,17 +1,12 @@
-#![allow(dead_code)]
-#![allow(warnings)]
-#![allow(unused)]
-#![warn(missing_docs)]
+#![allow(missing_docs)]
 
 
-use ApiResponse;
 use chrono;
 use error;
 use error::api;
 use prelude::*;
-use Proxer;
 use request;
-use request::info::*;
+use request::parameter;
 use reqwest;
 use reqwest::IntoUrl;
 use response::info;
@@ -25,117 +20,61 @@ use std::process::exit;
 use std::rc::Rc;
 use std::thread;
 use std::time;
+use client::Client;
+use response;
+use Request;
+
 
 
 pub struct Info<'a> {
-    pub proxer: Proxer<'a>
+    pub client: Client<'a>
 }
 
 
 impl<'a> Info<'a> {
-    pub fn get_fullentry(self, eid: InfoID) -> Result<info::FullEntry, error::Error> {
-        let mut request = request::Request::new("info/fullentry");
 
-        request.set_parameter("id", eid);
-
-
-        let res = self.proxer.execute(request);
+}
 
 
 
 
-
-        if res.is_err() {
-            return Err(res.err().unwrap());
-        }
-
-
-        // JSON PARsING
-
-        let json;
-
-        match res.unwrap().json::<ApiResponse>() {
-            Ok(r) => json = r,
-            Err(e) => return Err(error::Error::Json)
-        }
+#[derive(Debug, Clone)]
+pub struct GetFullEntry {
+    data: HashMap<String, String>
+}
 
 
-        // API ERROR CHECKING
 
-        if json.error != 0 {
-            return Err(error::Error::Api(error::api::Api::from(json)))
-        }
+impl GetFullEntry {
+    pub fn new(vars: parameter::info::GetFullEntry) -> Self {
+        let mut data = HashMap::new();
+
+        data.insert("id".to_string(), vars.0.to_string());
+
+        Self {data: data}
+    }
+}
 
 
-        let fullentry = info::FullEntry::from(json.data.unwrap());
+impl Request for GetFullEntry {
+    type RequestType = parameter::info::GetFullEntry;
+    type ResponseType = response::info::FullEntry;
 
-        Ok(fullentry)
+
+
+
+    fn get_url(self) -> String {
+        "info/fullentry".to_string()
     }
 
-
-
-
-
-    pub fn get_comments(self, vars: request::info::GetComments) -> Result<Vec<info::Comment>, error::Error> {
-        let mut request = request::Request::new("info/comments");
-
-        request.set_parameter("id", vars.id);
-        if vars.p.is_some() {
-            request.set_parameter("p", vars.p.unwrap());
-        }
-
-        match vars.p {
-            Some(i) => request.set_parameter("p", i),
-            None => request.set_parameter("p", ::api::DEFAULT_PAGER_PAGE)
-        }
-
-
-        match vars.limit {
-            Some(i) => request.set_parameter("limit", i),
-            None => request.set_parameter("limit", ::api::DEFAULT_PAGER_LIMIT)
-        }
-
-        match vars.sort {
-            Some(i) => request.set_parameter("sort", i),
-            None => request.remove_parameter("sort")
-        }
-
-
-
-        let res = self.proxer.execute(request);
-
-
-        if res.is_err() {
-            return Err(res.err().unwrap());
-        }
-
-
-        // JSON PARsING
-
-        let api_res = match res.unwrap().json::<ApiResponse>() {
-            Ok(r) => r,
-            Err(e) => return Err(error::Error::Json)
-        };
-
-
-        // API ERROR CHECKING
-
-        if api_res.error != 0 {
-            return Err(error::Error::Api(error::api::Api::from(api_res)))
-        }
-
-
-        let data = match api_res.data.unwrap().as_array() {
-            None => return Err(error::Error::Unknown),
-            Some(x) => x.clone(),
-        };
-
-
-        let mut all_comments = Vec::new();
-        for com in data {
-            all_comments.push(info::Comment::from(com));
-        }
-
-        Ok(all_comments)
+    fn get_data(self) -> HashMap<String, String> {
+        self.data
     }
+}
+
+
+
+
+pub struct GetComments {
+    data: HashMap<String, String>
 }
