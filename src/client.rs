@@ -2,15 +2,11 @@
 
 
 use error;
-use prelude::*;
-use request;
 use reqwest;
-use reqwest::{Url, Method};
+use reqwest::Url;
 use reqwest::header;
-use reqwest::IntoUrl;
 use serde_json::Value;
 use std;
-use std::collections::HashMap;
 use api;
 use Request;
 
@@ -51,7 +47,7 @@ impl<'a> Client<'a> {
 
 
     /// execute a request that satisfies [Request](../trait.Request.html)
-    pub fn execute<T: Request + Clone, E>(self, endpoint: T) -> Result<Value, error::Error> {
+    pub fn execute<T: Request + Clone>(self, endpoint: T) -> Result<Value, error::Error> {
         let url = Url::parse(&(self.base_uri.to_string() + &endpoint.clone().get_url())).unwrap();
 
 
