@@ -1,6 +1,3 @@
-#![warn(missing_docs)]
-
-
 use error;
 use reqwest;
 use reqwest::Url;
@@ -8,7 +5,6 @@ use reqwest::header;
 use serde_json::Value;
 use std;
 use api;
-use Request;
 use std::collections::HashMap;
 
 
@@ -19,9 +15,9 @@ const API_BASE_PATH: &str = "http://proxer.me/api/v1/";
 
 /// Client that holds the api key and sends requests
 #[derive(Debug, Clone)]
-pub struct Client<'a> {
-	api_key: &'a str,
-	base_uri: &'a str,
+pub struct Client {
+	api_key: String,
+	base_uri: String,
 	user_agent: String,
 }
 
@@ -29,9 +25,9 @@ pub struct Client<'a> {
 
 
 #[allow(unused)]
-impl<'a> Client<'a> {
+impl Client {
 	/// Create a new api client
-	pub fn new(api_key: &'a str) -> Self
+	pub fn new(api_key: String) -> Self
 	{
 		let crates_version = &std::env::var("CARGO_PKG_VERSION").unwrap_or("unknown".to_string());
 		let crates_name = std::env::var("CARGO_PKG_NAME").unwrap_or("unknown".to_string());
@@ -41,7 +37,7 @@ impl<'a> Client<'a> {
 
 		Self {
 			api_key: api_key,
-			base_uri: API_BASE_PATH,
+			base_uri: API_BASE_PATH.to_string(),
 			user_agent: ua,
 		}
 	}
@@ -92,17 +88,6 @@ impl<'a> Client<'a> {
 			}
 		}
 
-		//
-		// println!("{:#?}", api_response);
-		//
-		// return Ok(endpoint.parse(api_response.data.unwrap()));
-		// Err(error::Error::Unknown)
-	}
-
-	/// shortcut for creating common requests
-	pub fn api(&self) -> api::Api<'a>
-	{
-		api::Api { client: self.clone() }
 	}
 }
 
@@ -119,24 +104,4 @@ pub struct ApiResponse {
 	/// optional error code
 	/// in case of an error this contains the error code
 	pub code: Option<i64>,
-}
-
-
-
-pub struct Pager<'a> {
-	pub client: Client<'a>,
-	p: i64,
-	limit: i64,
-}
-
-
-impl<'a> Pager<'a> {
-	pub fn new(client: Client<'a>) -> Self
-	{
-		Self {
-			client: client,
-			p: 0,
-			limit: 10,
-		}
-	}
 }

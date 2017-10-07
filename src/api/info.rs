@@ -1,37 +1,59 @@
-#![allow(missing_docs)]
-
-
 use client;
 use client::Client;
 use Endpoint;
 use error;
 use Pageable;
 use Pager;
-use Request;
 use request::parameter as p;
 use response;
-use std;
 use std::collections::HashMap;
 
 
 
 
 
-pub struct Info<'a> {
-	pub client: Client<'a>,
+pub struct Info {
+	pub client: Client,
 }
 
 
+// impl<'a> Info<'a> {
+// 	pub fn get_full_entry(self, vars: p::info::GetFullEntry) -> GetFullEntry<'a> {
+// 		GetFullEntry::new(self.client, vars)
+// 	}
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #[derive(Debug, Clone)]
-pub struct GetFullEntry<'a> {
-	client: Client<'a>,
+pub struct GetFullEntry {
+	client: Client,
 	data: HashMap<String, String>,
 	url: String,
 }
 
 
-impl<'a> GetFullEntry<'a> {
-	pub fn new(client: &Client<'a>, vars: p::info::GetFullEntry) -> Self
+impl GetFullEntry {
+	pub fn new(client: &Client, vars: p::info::GetFullEntry) -> Self
 	{
 		let mut data = HashMap::new();
 
@@ -48,7 +70,7 @@ impl<'a> GetFullEntry<'a> {
 
 
 
-impl<'a> Endpoint for GetFullEntry<'a> {
+impl Endpoint for GetFullEntry {
 	type ResponseType = response::info::FullEntry;
 
 	fn get_params_mut(&mut self) -> &mut HashMap<String, String>
@@ -88,8 +110,8 @@ impl<'a> Endpoint for GetFullEntry<'a> {
 
 
 #[derive(Debug, Clone)]
-pub struct GetComments<'a> {
-	client: Client<'a>,
+pub struct GetComments {
+	client: Client,
 	data: HashMap<String, String>,
 	url: String,
 }
@@ -97,10 +119,10 @@ pub struct GetComments<'a> {
 
 
 
-impl<'a> GetComments<'a> {
+impl GetComments {
 	// type ResponseType = response::info::Comment;
 
-	pub fn new(client: Client<'a>, vars: p::info::GetComments) -> Self
+	pub fn new(client: Client, vars: p::info::GetComments) -> Self
 	{
 		let mut data = HashMap::new();
 
@@ -140,7 +162,7 @@ impl<'a> GetComments<'a> {
 
 
 
-impl<'a> Endpoint for GetComments<'a> {
+impl Endpoint for GetComments {
 	type ResponseType = Vec<response::info::Comment>;
 
 
@@ -171,7 +193,7 @@ impl<'a> Endpoint for GetComments<'a> {
 
 
 
-impl<'a> Pageable<GetComments<'a>> for GetComments<'a> {
+impl Pageable<GetComments> for GetComments {
 	fn pager(self) -> Pager<Self>
 	{
 		Pager::new(self.clone(), 0, 10)

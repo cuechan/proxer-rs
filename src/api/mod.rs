@@ -10,19 +10,27 @@ pub const DEFAULT_PAGER_LIMIT: i64 = 250;
 
 
 #[derive(Debug, Clone)]
-pub struct Api<'a> {
-	pub client: Client<'a>,
+pub struct Api {
+	pub client: Client,
 }
 
 
-impl<'a> Api<'a> {
-	pub fn info(self) -> info::Info<'a>
+impl Api {
+	pub fn info(self) -> info::Info
 	{
 		info::Info { client: self.client }
 	}
 
-	pub fn user(self) -> user::User<'a>
+	pub fn user(self) -> user::User
 	{
 		user::User { client: self.client }
+	}
+}
+
+
+impl Client {
+	pub fn api(&self) -> Api
+	{
+		Api { client: self.clone() }
 	}
 }
