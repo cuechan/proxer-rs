@@ -1,131 +1,153 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(warnings)]
-#![allow(unused)]
+//! proxer api library
+
+
+// #![warn(missing_docs)]
+
+
 
 #[macro_use]
-extern crate log;
-#[macro_use]
-extern crate reqwest;
-#[macro_use]
 extern crate serde_derive;
-#[macro_use]
-extern crate serde;
-#[macro_use]
+
 extern crate chrono;
-extern crate futures;
+extern crate colored;
+extern crate reqwest;
 extern crate serde_json;
-extern crate tokio_core;
+extern crate serde;
 
 pub mod error;
 pub mod response;
 pub mod request;
 pub mod api;
 pub mod prelude;
+pub mod client;
 
-use prelude::*;
-use reqwest::{Url, Method};
-use reqwest::IntoUrl;
-use reqwest::header;
-use serde_json::Value;
+pub use client::Client;
 use std::collections::HashMap;
-use std::process::exit;
-use std::result::Result;
-use std::thread;
-use std::time;
-use std::rc::Rc;
+use colored::Colorize;
 
 
 
+/// Every struct that is an endpoint, implements this trait.
+pub trait Endpoint {
+	type ResponseType: std::fmt::Debug + Clone;
+	fn get_params_mut(&mut self) -> &mut HashMap<String, String>;
+	fn send(self) -> Result<Self::ResponseType, error::Error>;
 
-const API_BASE_PATH: &str = "http://proxer.me/api/v1/";
 
-
-
-#[derive(Debug, Clone)]
-pub struct Proxer<'a> {
-    api_key: &'a str,
-    base_uri: &'a str,
-    user_agent: String,
 }
 
 
 
 
-#[allow(unused)]
-impl<'a> Proxer<'a> {
-    /// Create a new api client
-    pub fn new(api_key: &'a str) -> Self {
-        let crates_version = &std::env::var("CARGO_PKG_VERSION").unwrap_or("unknown".to_string());
-        let crates_name = std::env::var("CARGO_PKG_NAME").unwrap_or("unknown".to_string());
-
-
-        let ua = format!("libproxer-rust({}/v{})", crates_name, crates_version);
-
-        Self {
-            api_key: api_key,
-            base_uri: API_BASE_PATH,
-            user_agent: ua,
-        }
-    }
 
 
 
 
-    pub fn execute(self, mut request: request::Request) -> Result<reqwest::Response, error::Error> {
-        let url = Url::parse(&(self.base_uri.to_string() + request.clone().get_url())).unwrap();
 
 
 
 
-        let mut headers = reqwest::header::Headers::new();
-
-        headers.set(header::UserAgent::new(self.user_agent.to_string()));
-        headers.set(reqwest::header::ContentType::form_url_encoded());
 
 
-        request.set_parameter("api_key", self.api_key.to_string());
-
-        let client = reqwest::Client::new().unwrap();
-
-
-
-        let response = client
-            .post(url)
-            .unwrap()
-            .form(&request.get_paramter())
-            .unwrap()
-            .headers(headers)
-            .send();
-
-
-
-        match response {
-            Err(e) => {
-                info!("request unsuccessfull");
-                Err(error::Error::Http)
-            }
-            Ok(request) => {
-                info!("request was successfull");
-                Ok(request)
-            }
-        }
-    }
-
-
-    pub fn api(&self) -> api::Api<'a> {
-        api::Api{
-            proxer: self.clone()
-        }
-    }
+pub trait Pageable<E: Endpoint + Clone + std::fmt::Debug>
+where
+	<E as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+{
+	fn pager(self) -> Pager<E>;
 }
 
 
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct ApiResponse {
-    pub error: i64,
-    pub message: String,
-    pub data: Option<Value>,
-    pub code: Option<i64>,
+//#[derive(Debug, Clone)]
+pub struct Pager<T: Endpoint + Clone + std::fmt::Debug>
+where
+	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+{
+	limit: usize,
+	current_page: usize,
+	shifted: usize,
+	endpoint: T,
+	data: Vec<<<T as Endpoint>::ResponseType as IntoIterator>::Item>,
+}
+
+
+
+
+impl<T: Endpoint + Clone + std::fmt::Debug> Pager<T>
+where
+	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+{
+	pub fn new(mut endpoint: T, start: usize, limit: usize) -> Self
+	{
+		endpoint
+			.get_params_mut()
+			.insert("limit".to_string(), limit.to_string());
+
+		endpoint
+			.get_params_mut()
+			.insert("p".to_string(), start.to_string());
+
+
+		Self {
+			data: Vec::new(),
+			shifted: limit,
+			limit: limit,
+			endpoint: endpoint,
+			current_page: start,
+		}
+	}
+}
+
+
+
+
+
+impl<E> Iterator for Pager<E>
+where
+	E: Endpoint,
+	E: Clone,
+	E: std::fmt::Debug,
+	<E as Endpoint>::ResponseType: IntoIterator,
+{
+	type Item = Result<<<E as Endpoint>::ResponseType as IntoIterator>::Item, error::Error>;
+
+	fn next(&mut self) -> Option<Self::Item>
+	{
+		match self.data.pop()
+		{
+			Some(i) => {
+				std::thread::sleep(std::time::Duration::new(0, 000_500_000));
+				println!("Iter: returning from buffer");
+				self.shifted += 1;
+				Some(Ok(i))
+			},
+			None => {
+				//if false {
+				if self.shifted < self.limit {
+					println!("Iter: last fetch was smaller than limit");
+					return None;
+				}
+				else {
+					println!("Iter: fetching new data");
+					self.endpoint
+						.get_params_mut()
+						.insert("p".to_string(), self.current_page.to_string());
+
+					self.current_page += 1;
+
+					println!("{}", format!("{:#?}", self.endpoint).cyan().bold());
+					let res = self.endpoint.clone().send().unwrap();
+
+
+					for var in res.into_iter() {
+						self.data.push(var);
+					}
+					self.shifted = 0;
+
+					std::thread::sleep(std::time::Duration::new(1, 5_000_000));
+					self.next()
+				}
+			}
+		}
+	}
 }
