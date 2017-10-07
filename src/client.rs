@@ -98,12 +98,6 @@ impl<'a> Client<'a> {
 		// return Ok(endpoint.parse(api_response.data.unwrap()));
 		// Err(error::Error::Unknown)
 	}
-
-	/// shortcut for creating common requests
-	pub fn api(&self) -> api::Api<'a>
-	{
-		api::Api { client: self.clone() }
-	}
 }
 
 

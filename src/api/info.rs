@@ -17,10 +17,6 @@ use std::collections::HashMap;
 
 
 
-pub struct Info<'a> {
-	pub client: Client<'a>,
-}
-
 
 #[derive(Debug, Clone)]
 pub struct GetFullEntry<'a> {

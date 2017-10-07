@@ -24,15 +24,3 @@ use std::process::exit;
 use std::rc::Rc;
 use std::thread;
 use std::time;
-
-
-pub struct List<'a> {
-    pub proxer: Proxer<'a>
-}
-
-
-impl<'a> List<'a> {
-    fn get_entry_list(self) -> request::list::GetEntryList<'a> {
-        request::list::GetEntryList
-    }
-}
