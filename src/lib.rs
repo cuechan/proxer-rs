@@ -1,13 +1,10 @@
 //! proxer api library
 
 
-#![warn(missing_docs)]
-#![allow(missing_docs)]
+// #![warn(missing_docs)]
 
 
 
-#[macro_use]
-extern crate log;
 #[macro_use]
 extern crate serde_derive;
 
@@ -25,44 +22,18 @@ pub mod prelude;
 pub mod client;
 
 pub use client::Client;
-use serde_json::Value;
 use std::collections::HashMap;
 use colored::Colorize;
 
 
-/// Trait that represents an api endpoint
-pub trait Request {
-	/// parameter
-	type RequestType;
-	/// response type
-	type ResponseType: From<Value>;
 
-	/// gets the json, returns the actual data as struct
-	fn parse(&self, json: Value) -> Self::ResponseType
-	{
-		Self::ResponseType::from(json)
-	}
-
-	fn get_url(self) -> String;
-
-	/// returns the api endpoint url (eg. "info/fullentry")
-	fn send(&self) -> client::ApiResponse;
-
-	/// returns the payload
-	fn get_data(self) -> HashMap<String, String>;
-}
-
-// Trait that requeres a function that parses the request to
-// to an freely choosable datatype
-
-
-
-
+/// Every struct that is an endpoint, implements this trait.
 pub trait Endpoint {
 	type ResponseType: std::fmt::Debug + Clone;
-
 	fn get_params_mut(&mut self) -> &mut HashMap<String, String>;
 	fn send(self) -> Result<Self::ResponseType, error::Error>;
+
+
 }
 
 
