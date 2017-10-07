@@ -5,9 +5,10 @@ before_script:
 - which rustfmt || cargo install rustfmt
 
 script:
-- cargo fmt -- --write-mode=diff
+#- cargo fmt -- --write-mode=diff
 - cargo build
-#- cargo test
+- cargo test
+
 rust:
   - stable
   - beta
