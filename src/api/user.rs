@@ -30,7 +30,7 @@ use response;
 
 
 pub struct User<'a> {
-    pub client: Client<'a>
+	pub client: Client<'a>,
 }
 
 //
@@ -151,23 +151,23 @@ pub struct User<'a> {
 
 
 pub struct Userinfo {
-    data: HashMap<String, String>
+	data: HashMap<String, String>,
 }
 
 impl Userinfo {
-    fn new(vars: parameter::user::Userinfo) -> Self {
-        let mut data = HashMap::new();
+	fn new(vars: parameter::user::Userinfo) -> Self
+	{
+		let mut data = HashMap::new();
 
-        match (vars.uid, vars.username) {
-            (Some(i), None) => data.insert("uid".to_string(), i.to_string()),
-            (None, Some(i)) => data.insert("username".to_string(), i.to_string()),
-            _ => panic!("either username nor uid are given"),
-        };
+		match (vars.uid, vars.username)
+		{
+			(Some(i), None) => data.insert("uid".to_string(), i.to_string()),
+			(None, Some(i)) => data.insert("username".to_string(), i.to_string()),
+			_ => panic!("either username nor uid are given"),
+		};
 
-        Self {
-            data: data
-        }
-    }
+		Self { data: data }
+	}
 }
 
 // impl Request for Userinfo {

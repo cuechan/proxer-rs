@@ -27,9 +27,10 @@ pub struct GetFullEntry(pub InfoID);
 
 
 impl ToString for GetFullEntry {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
+	fn to_string(&self) -> String
+	{
+		self.0.to_string()
+	}
 }
 
 
@@ -39,9 +40,10 @@ impl ToString for GetFullEntry {
 pub struct GetEntry(pub InfoID);
 
 impl ToString for GetEntry {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
+	fn to_string(&self) -> String
+	{
+		self.0.to_string()
+	}
 }
 
 
@@ -50,9 +52,10 @@ impl ToString for GetEntry {
 pub struct GetNames(pub InfoID);
 
 impl ToString for GetNames {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
+	fn to_string(&self) -> String
+	{
+		self.0.to_string()
+	}
 }
 
 
@@ -61,9 +64,10 @@ impl ToString for GetNames {
 pub struct GetGate(pub InfoID);
 
 impl ToString for GetGate {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
+	fn to_string(&self) -> String
+	{
+		self.0.to_string()
+	}
 }
 
 
@@ -72,9 +76,10 @@ impl ToString for GetGate {
 pub struct GetLang(pub InfoID);
 
 impl ToString for GetLang {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
+	fn to_string(&self) -> String
+	{
+		self.0.to_string()
+	}
 }
 
 
@@ -83,9 +88,10 @@ impl ToString for GetLang {
 pub struct GetSeason(pub InfoID);
 
 impl ToString for GetSeason {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
+	fn to_string(&self) -> String
+	{
+		self.0.to_string()
+	}
 }
 
 
@@ -94,9 +100,10 @@ impl ToString for GetSeason {
 pub struct GetGroups(pub InfoID);
 
 impl ToString for GetGroups {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
+	fn to_string(&self) -> String
+	{
+		self.0.to_string()
+	}
 }
 
 
@@ -105,36 +112,37 @@ impl ToString for GetGroups {
 pub struct GetPublisher(pub InfoID);
 
 impl ToString for GetPublisher {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
+	fn to_string(&self) -> String
+	{
+		self.0.to_string()
+	}
 }
 
 
 
 #[derive(Debug, Clone)]
 pub struct GetListinfo {
-    pub id: InfoID,
-    pub p: Option<i64>,
-    pub limit: Option<i64>,
+	pub id: InfoID,
+	pub p: Option<i64>,
+	pub limit: Option<i64>,
 }
 
 
 
 #[derive(Debug, Clone)]
 pub struct GetComments {
-    pub id: InfoID,
-    pub p: Option<i64>,
-    pub limit: Option<i64>,
-    pub sort: Option<String>,
+	pub id: InfoID,
+	pub p: Option<i64>,
+	pub limit: Option<i64>,
+	pub sort: Option<String>,
 }
 
 
 
 #[derive(Debug, Clone)]
 pub struct GetRelations {
-    pub info_id: InfoID,
-    pub is_h: bool,
+	pub info_id: InfoID,
+	pub is_h: bool,
 }
 
 
@@ -143,9 +151,10 @@ pub struct GetRelations {
 pub struct EntryTags(pub InfoID);
 
 impl ToString for EntryTags {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
+	fn to_string(&self) -> String
+	{
+		self.0.to_string()
+	}
 }
 
 
@@ -153,9 +162,10 @@ impl ToString for EntryTags {
 pub struct GetTranslatorgroup(pub InfoID);
 
 impl ToString for GetTranslatorgroup {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
+	fn to_string(&self) -> String
+	{
+		self.0.to_string()
+	}
 }
 
 
@@ -163,14 +173,15 @@ impl ToString for GetTranslatorgroup {
 pub struct GetIndustry(pub InfoID);
 
 impl ToString for GetIndustry {
-    fn to_string(&self) -> String {
-        self.0.to_string()
-    }
+	fn to_string(&self) -> String
+	{
+		self.0.to_string()
+	}
 }
 
 
 #[derive(Debug, Clone)]
 pub struct SetUserInfo {
-    pub id: InfoID,
-    pub typ: String,
+	pub id: InfoID,
+	pub typ: String,
 }
