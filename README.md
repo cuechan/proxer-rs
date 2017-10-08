@@ -1,4 +1,4 @@
-# libproxer-rust
+# proxer-rs
 [![cates.io](https://img.shields.io/crates/v/proxer.svg)](https://crates.io/crates/proxer)
 [![maintenance](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)](https://crates.io/crates/proxer)
 [![Build Status](https://travis-ci.org/cuechan/proxer-rs.svg?branch=master)](https://travis-ci.org/cuechan/proxer-rs)
