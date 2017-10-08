@@ -24,16 +24,34 @@ pub mod client;
 pub use client::Client;
 use std::collections::HashMap;
 use colored::Colorize;
+use serde_json::Value;
 
 
 
 /// Every struct that is an endpoint, implements this trait.
 pub trait Endpoint {
 	type ResponseType: std::fmt::Debug + Clone;
-	fn get_params_mut(&mut self) -> &mut HashMap<String, String>;
-	fn send(self) -> Result<Self::ResponseType, error::Error>;
 
+	fn params_mut(&mut self) -> &mut HashMap<String, String>;
+	fn client(&self) -> Client;
+	fn url(&self) -> String;
+	fn parse(&self, Value) -> Result<Self::ResponseType, error::Error>;
 
+	fn params(&mut self) -> HashMap<String, String>
+	{
+		self.params_mut().clone()
+	}
+
+	fn send(&mut self) -> Result<Self::ResponseType, error::Error>
+	{
+		match self.client().execute(self.url(), self.params())
+		{
+			Err(e) => Err(e),
+			Ok(r) => {
+				self.parse(r)
+			}
+		}
+	}
 }
 
 
@@ -80,11 +98,11 @@ where
 	pub fn new(mut endpoint: T, start: usize, limit: usize) -> Self
 	{
 		endpoint
-			.get_params_mut()
+			.params_mut()
 			.insert("limit".to_string(), limit.to_string());
 
 		endpoint
-			.get_params_mut()
+			.params_mut()
 			.insert("p".to_string(), start.to_string());
 
 
@@ -120,7 +138,7 @@ where
 				println!("Iter: returning from buffer");
 				self.shifted += 1;
 				Some(Ok(i))
-			},
+			}
 			None => {
 				//if false {
 				if self.shifted < self.limit {
@@ -130,7 +148,7 @@ where
 				else {
 					println!("Iter: fetching new data");
 					self.endpoint
-						.get_params_mut()
+						.params_mut()
 						.insert("p".to_string(), self.current_page.to_string());
 
 					self.current_page += 1;

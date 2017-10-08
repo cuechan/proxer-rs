@@ -7,6 +7,7 @@ use Pager;
 use request::parameter as p;
 use response;
 use std::collections::HashMap;
+use serde_json::Value;
 
 
 
@@ -65,38 +66,24 @@ impl GetFullEntry {
 
 
 
-
-impl Endpoint for GetFullEntry {
-	type ResponseType = response::info::FullEntry;
-
-	fn get_params_mut(&mut self) -> &mut HashMap<String, String>
-	{
-		&mut self.data
-	}
-
-	fn send(self) -> Result<Self::ResponseType, error::Error>
-	{
-		match self.client.execute(self.url, self.data)
-		{
-			Err(e) => Err(e),
-			Ok(r) => Ok(Self::ResponseType::from(r)),
-		}
-	}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//
+// impl Endpoint for GetFullEntry {
+// 	type ResponseType = response::info::FullEntry;
+//
+// 	fn get_params_mut(&mut self) -> &mut HashMap<String, String>
+// 	{
+// 		&mut self.data
+// 	}
+//
+// 	fn send(self) -> Result<Self::ResponseType, error::Error>
+// 	{
+// 		match self.client.execute(self.url, self.data)
+// 		{
+// 			Err(e) => Err(e),
+// 			Ok(r) => Ok(Self::ResponseType::from(r)),
+// 		}
+// 	}
+// }
 
 
 
@@ -118,7 +105,7 @@ pub struct GetComments {
 impl GetComments {
 	// type ResponseType = response::info::Comment;
 
-	pub fn new(client: Client, vars: p::info::GetComments) -> Self
+	pub fn new(client: &Client, vars: p::info::GetComments) -> Self
 	{
 		let mut data = HashMap::new();
 
@@ -142,7 +129,7 @@ impl GetComments {
 
 
 		Self {
-			client: client,
+			client: client.clone(),
 			data: data,
 			url: "info/comments".to_string(),
 		}
@@ -162,28 +149,30 @@ impl Endpoint for GetComments {
 	type ResponseType = Vec<response::info::Comment>;
 
 
-	fn get_params_mut(&mut self) -> &mut HashMap<String, String>
+	fn client(&self) -> Client {
+		self.client.to_owned()
+	}
+
+	fn params_mut(&mut self) -> &mut HashMap<String, String>
 	{
 		&mut self.data
 	}
 
+	fn url(&self) -> String {
+		self.url.to_owned()
+	}
 
-	fn send(self) -> Result<Self::ResponseType, error::Error>
+
+	fn parse(&self, json: Value) -> Result<Self::ResponseType, error::Error>
 	{
-		match self.client.execute(self.url, self.data)
-		{
-			Err(e) => Err(e),
-			Ok(r) => {
-				let mut res = Self::ResponseType::new();
-				let array = r.as_array().unwrap();
+		let mut res = Self::ResponseType::new();
+		let array = json.as_array().unwrap();
 
-				for comment in array {
-					res.insert(0, response::info::Comment::from(comment.clone()));
-				}
-
-				Ok(res)
-			}
+		for comment in array {
+			res.insert(0, response::info::Comment::from(comment.clone()));
 		}
+
+		Ok(res)
 	}
 }
 
