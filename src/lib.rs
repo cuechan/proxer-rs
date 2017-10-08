@@ -47,9 +47,7 @@ pub trait Endpoint {
 		match self.client().execute(self.url(), self.params())
 		{
 			Err(e) => Err(e),
-			Ok(r) => {
-				self.parse(r)
-			}
+			Ok(r) => self.parse(r),
 		}
 	}
 }

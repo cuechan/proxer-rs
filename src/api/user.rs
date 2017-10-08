@@ -56,14 +56,8 @@ impl Endpoint for Userinfo {
 		&mut self.data
 	}
 
-	fn parse(&self, json: Value) -> Result<Self::ResponseType, error::Error> {
+	fn parse(&self, json: Value) -> Result<Self::ResponseType, error::Error>
+	{
 		Ok(Self::ResponseType::from(json))
 	}
-
-
-
-	// fn get_params_mut(&mut self) -> &mut HashMap<String, String>
-	// {
-	// 	&mut self.data
-	// }
 }

@@ -54,7 +54,7 @@ impl GetFullEntry {
 	{
 		let mut data = HashMap::new();
 
-		data.insert("id".to_string(), vars.0.to_string());
+		data.insert("id".to_string(), vars.id.to_string());
 
 		Self {
 			client: client.clone(),
@@ -66,24 +66,28 @@ impl GetFullEntry {
 
 
 
-//
-// impl Endpoint for GetFullEntry {
-// 	type ResponseType = response::info::FullEntry;
-//
-// 	fn get_params_mut(&mut self) -> &mut HashMap<String, String>
-// 	{
-// 		&mut self.data
-// 	}
-//
-// 	fn send(self) -> Result<Self::ResponseType, error::Error>
-// 	{
-// 		match self.client.execute(self.url, self.data)
-// 		{
-// 			Err(e) => Err(e),
-// 			Ok(r) => Ok(Self::ResponseType::from(r)),
-// 		}
-// 	}
-// }
+
+impl Endpoint for GetFullEntry {
+	type ResponseType = response::info::FullEntry;
+
+	fn params_mut(&mut self) -> &mut HashMap<String, String>
+	{
+		&mut self.data
+	}
+
+	fn client(&self) -> Client {
+		self.client.to_owned()
+	}
+
+	fn url(&self) -> String {
+		self.url.to_owned()
+	}
+
+	fn parse(&self, json: Value) -> Result<Self::ResponseType, error::Error>
+	{
+		Ok(Self::ResponseType::from(json))
+	}
+}
 
 
 
@@ -149,7 +153,8 @@ impl Endpoint for GetComments {
 	type ResponseType = Vec<response::info::Comment>;
 
 
-	fn client(&self) -> Client {
+	fn client(&self) -> Client
+	{
 		self.client.to_owned()
 	}
 
@@ -158,7 +163,8 @@ impl Endpoint for GetComments {
 		&mut self.data
 	}
 
-	fn url(&self) -> String {
+	fn url(&self) -> String
+	{
 		self.url.to_owned()
 	}
 

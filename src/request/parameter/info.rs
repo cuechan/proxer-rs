@@ -23,13 +23,15 @@ use prelude::*;
 
 
 #[derive(Debug, Clone)]
-pub struct GetFullEntry(pub InfoID);
+pub struct GetFullEntry {
+	pub id: InfoID
+}
 
 
 impl ToString for GetFullEntry {
 	fn to_string(&self) -> String
 	{
-		self.0.to_string()
+		self.id.to_string()
 	}
 }
 
