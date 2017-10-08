@@ -1,4 +1,7 @@
-# libproxer-rust ![cates.io](https://img.shields.io/crates/v/proxer.svg) ![maintenance](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)[![Build Status](https://travis-ci.org/cuechan/proxer-rs.svg?branch=master)](https://travis-ci.org/cuechan/proxer-rs)
+# libproxer-rust
+[![cates.io](https://img.shields.io/crates/v/proxer.svg)](https://crates.io/crates/proxer)
+[![maintenance](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)](https://crates.io/crates/proxer)
+[![Build Status](https://travis-ci.org/cuechan/proxer-rs.svg?branch=master)](https://travis-ci.org/cuechan/proxer-rs)
 
 This is a small project to learn some rust basics. I don't expect that this will ever be ready for production use.
 
