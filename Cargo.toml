@@ -5,7 +5,7 @@ authors = ["Paul Maruhn <paulmaruhn@gmail.com>"]
 
 description = "Access the ProxerMe API with Rust"
 documentation = ""
-readme = "readme.md"
+readme = "README.md"
 keywords = ["proxer", "api", "interwebs"]
 categories = ["api-bindings"]
 license = "MIT"
