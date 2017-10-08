@@ -3,6 +3,20 @@ name = "proxer"
 version = "0.1.0"
 authors = ["Paul Maruhn <paulmaruhn@gmail.com>"]
 
+description = "Access the ProxerMe API with Rust"
+documentation = ""
+readme = "readme.md"
+keywords = ["proxer", "api", "interwebs"]
+categories = ["api-bindings"]
+license = "MIT"
+license-file = "LICENSE"
+
+[badges]
+travis-ci = { repository = "cuechan/proxer-rs", branch = "master" }
+maintenance = { status = "actively-developed" }
+
+
+
 [dependencies]
 futures = "0.1.14"
 log = "0.3.8"
