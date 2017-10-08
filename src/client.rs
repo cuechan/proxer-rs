@@ -87,7 +87,6 @@ impl Client {
 				}
 			}
 		}
-
 	}
 }
 

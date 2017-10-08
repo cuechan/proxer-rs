@@ -4,11 +4,6 @@ use request::parameter;
 
 
 
-pub struct User {
-	pub client: Client,
-}
-
-
 
 
 pub struct Userinfo {

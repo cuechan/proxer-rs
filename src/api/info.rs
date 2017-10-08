@@ -12,10 +12,6 @@ use std::collections::HashMap;
 
 
 
-pub struct Info {
-	pub client: Client,
-}
-
 
 // impl<'a> Info<'a> {
 // 	pub fn get_full_entry(self, vars: p::info::GetFullEntry) -> GetFullEntry<'a> {
