@@ -39,12 +39,14 @@ impl ToString for GetFullEntry {
 
 
 #[derive(Debug, Clone)]
-pub struct GetEntry(pub InfoID);
+pub struct GetEntry {
+	pub id: InfoID
+}
 
 impl ToString for GetEntry {
 	fn to_string(&self) -> String
 	{
-		self.0.to_string()
+		self.id.to_string()
 	}
 }
 

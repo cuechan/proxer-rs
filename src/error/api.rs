@@ -1,5 +1,3 @@
-use std::option::Option;
-use std;
 use std::fmt;
 use serde_json;
 use client;
@@ -9,31 +7,31 @@ use client;
 #[derive(Debug, Copy, Clone)]
 pub enum Errcode {
 	// UNKNOWN_ERROR
-	UNKNOWN_ERROR,
+	UnknownError,
 
 	// 1xxx errors
-	API_VERSION_NOT_FOUND,
-	API_VERSION_DEPRECATED,
-	API_CLASS_NOT_FOUND,
-	API_FUNCTION_NOT_FOUND,
-	KEY_INSUFFICIENT_RIGHTS,
-	INVALID_TOKEN,
-	API_FUNCTION_DISABLED,
-	PROXER_MAINTENANCE,
-	API_MAINTENANCE,
+	ApiVersionNotFound,
+	ApiVersionDeprecated,
+	ApiClassNotFound,
+	ApiFunctionNotFound,
+	KeyInsufficientRights,
+	InvalidToken,
+	ApiFunctionDisabled,
+	ProxerMaintenance,
+	ApiMaintenance,
 
 	// 2xxx errors
-	IP_BLOCKED,
-	NEWS_ERROR,
+	IpBlocked,
+	NewsError,
 
 	// 3xxx errors
-	MISSING_LOGIN_CREDENTIALS,
-	INVALID_LOGIN_CREDENTIALS,
-	INVALID_ID,
-	INVALID_UID,
-	USER_NOT_LOGGED_IN,
-	USER_NOT_FOUND,
-	USER_ALREADY_LOGGED_IN,
+	MissingLoginCredentials,
+	InvalidLoginCredentials,
+	InvalidId,
+	InvalidUid,
+	UserNotLoggedIn,
+	UserNotFound,
+	UserAlreadyLoggedIn,
 }
 
 
@@ -43,31 +41,31 @@ impl Errcode {
 
 		match code
 		{
-			1000 => Errcode::API_VERSION_NOT_FOUND,
-			1001 => Errcode::API_VERSION_DEPRECATED,
-			1002 => Errcode::API_CLASS_NOT_FOUND,
-			1003 => Errcode::API_FUNCTION_NOT_FOUND,
-			1004 => Errcode::KEY_INSUFFICIENT_RIGHTS,
-			1005 => Errcode::INVALID_TOKEN,
-			1006 => Errcode::API_FUNCTION_DISABLED,
-			1007 => Errcode::PROXER_MAINTENANCE,
-			1008 => Errcode::API_MAINTENANCE,
+			1000 => Errcode::ApiVersionNotFound,
+			1001 => Errcode::ApiVersionDeprecated,
+			1002 => Errcode::ApiClassNotFound,
+			1003 => Errcode::ApiFunctionNotFound,
+			1004 => Errcode::KeyInsufficientRights,
+			1005 => Errcode::InvalidToken,
+			1006 => Errcode::ApiFunctionDisabled,
+			1007 => Errcode::ProxerMaintenance,
+			1008 => Errcode::ApiMaintenance,
 
-			2000 => Errcode::IP_BLOCKED,
-			2001 => Errcode::NEWS_ERROR,
+			2000 => Errcode::IpBlocked,
+			2001 => Errcode::NewsError,
 
-			3000 => Errcode::MISSING_LOGIN_CREDENTIALS,
-			3001 => Errcode::INVALID_LOGIN_CREDENTIALS,
-			3002 => Errcode::USER_NOT_LOGGED_IN,
-			3003 => Errcode::USER_NOT_FOUND,
-			3004 => Errcode::USER_NOT_LOGGED_IN,
-			3007 => Errcode::INVALID_ID,
-			3009 => Errcode::USER_NOT_LOGGED_IN,
-			3012 => Errcode::USER_ALREADY_LOGGED_IN,
-			3023 => Errcode::USER_NOT_LOGGED_IN,
-			3034 => Errcode::USER_NOT_LOGGED_IN,
+			3000 => Errcode::MissingLoginCredentials,
+			3001 => Errcode::InvalidLoginCredentials,
+			3002 => Errcode::UserNotLoggedIn,
+			3003 => Errcode::UserNotFound,
+			3004 => Errcode::UserNotLoggedIn,
+			3007 => Errcode::InvalidId,
+			3009 => Errcode::UserNotLoggedIn,
+			3012 => Errcode::UserAlreadyLoggedIn,
+			3023 => Errcode::UserNotLoggedIn,
+			3034 => Errcode::UserNotLoggedIn,
 
-			_ => Errcode::UNKNOWN_ERROR,
+			_ => Errcode::UnknownError,
 		}
 	}
 }

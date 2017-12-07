@@ -1,5 +1,4 @@
 #![allow(unused)]
-#![allow(unstable)]
 
 use chrono;
 use chrono::DateTime;

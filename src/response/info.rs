@@ -1,5 +1,4 @@
 #![allow(unused)]
-#![allow(unstable)]
 
 use chrono;
 use chrono::DateTime;
@@ -160,7 +159,7 @@ pub struct Info {
 
 
 #[derive(Deserialize)]
-pub struct RawInfo {
+struct RawInfo {
 	id: String,
 	name: String,
 	genre: String,
@@ -406,18 +405,18 @@ impl From<Value> for Name {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Comment {
-	pub id: u64,
-	pub info_id: u64,
+	pub id: i64,
+	pub info_id: i64,
 	pub comment_type: String,
-	pub state: u64, // Todo: use enum for state
+	pub state: i64, // Todo: use enum for state
 	pub data: String,
 	pub comment: String,
-	pub rating: u64,
-	pub episode: u64,
-	pub positive: u64,
-	pub timestamp: u64, //Todo: use chrono here
+	pub rating: i64,
+	pub episode: i64,
+	pub positive: i64,
+	pub timestamp: i64, //Todo: use chrono here
 	pub username: String,
-	pub uid: u64,
+	pub uid: i64,
 	pub avatar: String,
 }
 

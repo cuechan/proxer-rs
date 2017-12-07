@@ -1,7 +1,5 @@
 pub mod api;
 
-use std::option::Option;
-
 
 #[derive(Debug, Clone)]
 pub enum Error {

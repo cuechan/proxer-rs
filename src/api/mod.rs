@@ -5,13 +5,16 @@ pub mod list;
 
 use client::Client;
 use request::parameter as p;
+use prelude::InfoID;
+
 
 /// Shortcuts to the endpoints
 
 impl Client {
-	pub fn api(self) -> Api
-	{
-		Api { inner: self }
+	pub fn api(self) -> Api {
+		Api {
+			inner: self
+		}
 	}
 }
 
@@ -48,16 +51,26 @@ pub struct User {
 }
 
 pub struct List {
+	#[allow(dead_code)]
 	inner: Client,
 }
 
 
 impl Info {
-    pub fn get_fullentry(self, vars: p::info::GetFullEntry) -> info::GetFullEntry {
-        info::GetFullEntry::new(&self.inner.clone(), vars)
+    pub fn get_fullentry(self, vars: InfoID) -> info::GetFullEntry {
+        info::GetFullEntry::new(&self.inner.clone(), p::info::GetFullEntry {id: vars})
     }
 
     pub fn get_comments(self, vars: p::info::GetComments) -> info::GetComments {
         info::GetComments::new(&self.inner.clone(), vars)
     }
+}
+
+
+
+
+impl User {
+	pub fn get_userinfo(self, vars: p::user::Userinfo) -> user::Userinfo {
+		user::Userinfo::new(&self.inner.clone(), vars)
+	}
 }

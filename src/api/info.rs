@@ -1,4 +1,3 @@
-use client;
 use client::Client;
 use Endpoint;
 use error;
@@ -138,12 +137,6 @@ impl GetComments {
 			url: "info/comments".to_string(),
 		}
 	}
-
-
-	// pub fn iterator(self) -> Pager<Self>
-	// {
-	// 	Pager::new(self.clone(), 100)
-	// }
 }
 
 
@@ -187,6 +180,6 @@ impl Endpoint for GetComments {
 impl Pageable<GetComments> for GetComments {
 	fn pager(self) -> Pager<Self>
 	{
-		Pager::new(self.clone(), 0, 10)
+		Pager::new(self.clone(), None, Some(1_000))
 	}
 }

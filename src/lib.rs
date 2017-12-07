@@ -22,8 +22,10 @@ pub mod prelude;
 pub mod client;
 
 pub use client::Client;
+pub use prelude::*;
+
+
 use std::collections::HashMap;
-use colored::Colorize;
 use serde_json::Value;
 
 
@@ -51,14 +53,6 @@ pub trait Endpoint {
 		}
 	}
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -93,23 +87,40 @@ impl<T: Endpoint + Clone + std::fmt::Debug> Pager<T>
 where
 	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
 {
-	pub fn new(mut endpoint: T, start: usize, limit: usize) -> Self
+	pub fn new(mut endpoint: T, mut start: Option<usize>, mut limit: Option<usize>) -> Self
 	{
-		endpoint
-			.params_mut()
-			.insert("limit".to_string(), limit.to_string());
+		if limit.is_none() {
+			limit = Some(500);
+		}
+
+		if start.is_none() {
+			start = Some(0);
+		}
+
 
 		endpoint
 			.params_mut()
-			.insert("p".to_string(), start.to_string());
+			.insert(
+				"p".to_string(),
+				start.unwrap().to_string()
+			);
+
+
+		endpoint
+			.params_mut()
+			.insert(
+				"limit".to_string(),
+				limit.unwrap().to_string()
+			);
+
 
 
 		Self {
 			data: Vec::new(),
-			shifted: limit,
-			limit: limit,
+			shifted: limit.unwrap(),
+			limit: limit.unwrap(),
 			endpoint: endpoint,
-			current_page: start,
+			current_page: start.unwrap(),
 		}
 	}
 }
@@ -132,26 +143,22 @@ where
 		match self.data.pop()
 		{
 			Some(i) => {
-				std::thread::sleep(std::time::Duration::new(0, 000_500_000));
-				println!("Iter: returning from buffer");
 				self.shifted += 1;
 				Some(Ok(i))
 			}
 			None => {
 				//if false {
 				if self.shifted < self.limit {
-					println!("Iter: last fetch was smaller than limit");
 					return None;
 				}
 				else {
-					println!("Iter: fetching new data");
 					self.endpoint
 						.params_mut()
 						.insert("p".to_string(), self.current_page.to_string());
 
 					self.current_page += 1;
 
-					println!("{}", format!("{:#?}", self.endpoint).cyan().bold());
+					// println!("{}", format!("send request").cyan().bold());
 					let res = self.endpoint.clone().send().unwrap();
 
 
@@ -160,7 +167,7 @@ where
 					}
 					self.shifted = 0;
 
-					std::thread::sleep(std::time::Duration::new(1, 5_000_000));
+					// std::thread::sleep(std::time::Duration::new(1, 5_000_000));
 					self.next()
 				}
 			}

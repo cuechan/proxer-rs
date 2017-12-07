@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 use client;
 use client::Client;
 use Endpoint;

@@ -4,7 +4,6 @@ use reqwest::Url;
 use reqwest::header;
 use serde_json::Value;
 use std;
-use api;
 use std::collections::HashMap;
 
 
@@ -83,7 +82,16 @@ impl Client {
 				match res.json::<ApiResponse>()
 				{
 					Err(e) => return Err(error::Error::Json),
-					Ok(r) => Ok(r.data.unwrap()),
+					Ok(r) => {
+						if r.error != 0 {
+							Err(error::Error::Api(
+								error::api::Api::from(r)
+							))
+						}
+						else {
+							Ok(r.data.unwrap())
+						}
+					}
 				}
 			}
 		}
