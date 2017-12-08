@@ -1,9 +1,5 @@
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused)]
-
-
 use error;
+use prelude::*;
 use reqwest;
 use reqwest::IntoUrl;
 use serde_derive;
@@ -16,7 +12,6 @@ use std::process::exit;
 use std::result::Result;
 use std::thread;
 use std::time;
-use prelude::*;
 
 
 
