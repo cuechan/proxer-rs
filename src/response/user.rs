@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use chrono;
 use chrono::DateTime;
 use error;

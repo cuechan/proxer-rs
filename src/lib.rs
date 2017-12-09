@@ -1,10 +1,4 @@
 //! proxer api library
-
-
-// #![warn(missing_docs)]
-
-
-
 #[macro_use]
 extern crate serde_derive;
 
@@ -20,6 +14,8 @@ pub mod request;
 pub mod api;
 pub mod prelude;
 pub mod client;
+#[test]
+pub mod tests;
 
 pub use client::Client;
 pub use prelude::*;
@@ -172,30 +168,5 @@ where
 				}
 			}
 		}
-	}
-}
-
-
-
-#[cfg(test)]
-mod tests {
-	use super::*;
-
-	#[test]
-	fn api_structure() {
-		// is the api structured as we want it to be?
-
-		let client = client::Client::new("my_api_key".to_string());
-
-
-		
-
-
-
-
-
-
-
-
 	}
 }

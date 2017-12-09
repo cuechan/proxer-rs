@@ -1,7 +1,3 @@
-#![allow(dead_code)]
-#![allow(unused)]
-
-
 use error;
 use reqwest;
 use reqwest::IntoUrl;

@@ -1,9 +1,3 @@
-#![allow(dead_code)]
-#![deny(unused_imports)]
-#![allow(warnings)]
-#![allow(unused)]
-
-
 use std;
 
 
