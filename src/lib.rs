@@ -14,7 +14,6 @@ pub mod request;
 pub mod api;
 pub mod prelude;
 pub mod client;
-#[test]
 pub mod tests;
 
 pub use client::Client;
