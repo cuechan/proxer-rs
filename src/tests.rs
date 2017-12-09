@@ -7,12 +7,4 @@ fn api_structure() {
 
 	let client = Client::new("my_api_key".to_string());
 
-
-
-	let response = client.api().info().get_fullentry();
-
-
-	println!("request:    {:#?}",  response);
-
-	panic!();
 }
