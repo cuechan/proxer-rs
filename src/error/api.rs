@@ -4,7 +4,7 @@ use client;
 
 
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Errcode {
 	// UNKNOWN_ERROR
 	UnknownError,
@@ -14,7 +14,7 @@ pub enum Errcode {
 	ApiVersionDeprecated,
 	ApiClassNotFound,
 	ApiFunctionNotFound,
-	KeyInsufficientRights,
+	NoApiPermissions,
 	InvalidToken,
 	ApiFunctionDisabled,
 	ProxerMaintenance,
@@ -45,7 +45,7 @@ impl Errcode {
 			1001 => Errcode::ApiVersionDeprecated,
 			1002 => Errcode::ApiClassNotFound,
 			1003 => Errcode::ApiFunctionNotFound,
-			1004 => Errcode::KeyInsufficientRights,
+			1004 => Errcode::NoApiPermissions,
 			1005 => Errcode::InvalidToken,
 			1006 => Errcode::ApiFunctionDisabled,
 			1007 => Errcode::ProxerMaintenance,
@@ -103,6 +103,7 @@ impl fmt::Display for Errcode {
 pub struct Api {
 	code: i64,
 	message: String,
+	error: Errcode,
 }
 
 impl Api {
@@ -111,7 +112,12 @@ impl Api {
 		Api {
 			code: code,
 			message: msg,
+			error: Errcode::from(code),
 		}
+	}
+
+	pub fn error(&self) -> Errcode {
+		self.error
 	}
 }
 
@@ -125,6 +131,7 @@ impl From<serde_json::Value> for Api {
 
 
 		Self {
+			error: Errcode::from_code(error),
 			code: error,
 			message: msg.to_string(),
 		}
@@ -137,6 +144,7 @@ impl From<client::ApiResponse> for Api {
 	{
 		Self {
 			code: res.code.unwrap(),
+			error: Errcode::from_code(res.code.unwrap()),
 			message: res.message.to_string(),
 		}
 	}

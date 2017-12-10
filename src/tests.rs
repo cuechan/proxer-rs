@@ -1,31 +1,43 @@
 use super::*;
 use std::env;
+use error::Error;
+use error::api::Errcode;
 
 
 const ENV_KEY: &str = "PROXER_API_KEY";
 
 
 #[test]
-fn fetch_object() {
+fn api_response() {
 	// is the api structured as we want it to be?
-
-
-	let api_key = match env::var_os(ENV_KEY) {
-		Some(r) => r,
-		None => panic!("no environment variable '{}' found", ENV_KEY)
-	};
-
-	let client = Client::new(api_key.into_string().unwrap());
+	let client = mk_client();
 
 	let res = client.api().info().get_fullentry(parameter::InfoGetFullEntry {
 		id: 53
 	}).send();
 
+	println!();
 
-	println!("{:#?}", res);
 
+	match res {
+		Err(e) => {
+			match e {
+				Error::Api(e) => {
+					match e.error() {
+						Errcode::NoApiPermissions => return,
+						_ => panic!("this error is not expected"),
+					}
+				},
+				Error::Json => panic!("can't parse json"),
+				Error::Unknown => panic!("unknown error"),
+				_ => return,
+			}
+		},
 
-	panic!();
+		Ok(r) => {
+			assert_eq!(r.medium, "animeseries");
+		}
+	}
 }
 
 
@@ -34,7 +46,8 @@ fn fetch_object() {
 fn mk_client() -> Client {
 	let api_key = match env::var_os(ENV_KEY) {
 		Some(r) => r,
-		None => panic!("no environment variable '{}' found", ENV_KEY)
+		// using a dummy key
+		None => "DUMMY".into()
 	};
 
 	Client::new(api_key.into_string().unwrap())
