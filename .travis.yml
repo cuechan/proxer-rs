@@ -6,6 +6,7 @@ before_script:
 
 script:
 #- cargo fmt -- --write-mode=diff
+- cargo update
 - cargo build
 - cargo test
 
