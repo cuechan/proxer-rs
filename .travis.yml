@@ -16,3 +16,6 @@ rust:
 matrix:
   allow_failures:
     - rust: nightly
+
+env:
+  - PROXER_API_KEY=DUMMY
