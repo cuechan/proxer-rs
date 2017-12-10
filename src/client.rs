@@ -5,6 +5,11 @@ use reqwest::header;
 use serde_json::Value;
 use std;
 use std::collections::HashMap;
+use Endpoint;
+use serde_urlencoded;
+use serde::Serialize;
+use std::fmt;
+
 
 
 
@@ -44,33 +49,41 @@ impl Client {
 
 
 	/// execute a request that satisfies [Request](../trait.Request.html)
-	pub fn execute(self, url: String, vars: HashMap<String, String>) -> Result<Value, error::Error>
+	pub fn execute<T: Serialize + Clone + fmt::Debug>(self, url: String, req: T) -> Result<Value, error::Error>
 	{
-		let url = Url::parse(&(self.base_uri.to_string() + &url)).unwrap();
+		let uristring = self.base_uri.to_string() + &url;
 
 
-
-
+		header!{(ProxerApiKey, "Proxer-Api-Key") => [String]}
 
 		let mut headers = reqwest::header::Headers::new();
 
 		headers.set(header::UserAgent::new(self.user_agent.to_string()));
-		headers.set(reqwest::header::ContentType::form_url_encoded());
+		headers.set(header::Host::new("proxer.me", None));
+		headers.set(header::ContentType::form_url_encoded());
+		headers.set(ProxerApiKey(self.api_key.clone()));
 
 
-		let mut parameter = vars.clone();
-		parameter.insert("api_key".to_string(), self.api_key.to_string());
 
-		let client = reqwest::Client::new().unwrap();
+		let mut http_req = reqwest::Request::new(reqwest::Method::Post, uristring.parse().unwrap());
 
+		// add our headers to the request
+		http_req.headers_mut().extend(headers.iter());
+
+		match serde_urlencoded::to_string(req.clone()) {
+            Ok(body) => {
+                *http_req.body_mut() = Some(body.into());
+            },
+            Err(err) => panic!("can't serialize form parameters"),
+        }
+
+
+		let client = reqwest::Client::new();
 
 		let response = client
-			.post(url)
-			.unwrap()
-			.form(&parameter)
-			.unwrap()
-			.headers(headers)
-			.send();
+			.execute(http_req);
+
+
 
 
 		// let api_response;

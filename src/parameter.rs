@@ -89,6 +89,20 @@ pub struct InfoGetComments {
 	pub sort: Option<String>,
 }
 
+impl Iterator for InfoGetComments {
+	type Item = Self;
+
+	fn next(&mut self) -> Option<Self::Item> {
+		self.p = match self.p {
+			Some(p) => Some(p + 1),
+			None => Some(0)
+		};
+
+		Some(self.clone())
+	}
+}
+
+
 
 
 #[derive(Serialize, Debug, Clone)]
@@ -143,12 +157,10 @@ pub struct ListGetList {
 
 
 impl Iterator for ListGetList {
-	type Item = ListGetList;
+	type Item = Self;
 
-	fn next(&mut self) -> Option<Self::Item>
-	{
-		self.p = match self.p
-		{
+	fn next(&mut self) -> Option<Self::Item> {
+		self.p = match self.p {
 			Some(p) => Some(p + 1),
 			None => Some(0)
 		};

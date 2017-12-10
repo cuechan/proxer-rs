@@ -4,7 +4,7 @@ pub mod list;
 
 
 use client::Client;
-use request::parameter as p;
+use parameter;
 use prelude::InfoID;
 
 
@@ -57,11 +57,14 @@ pub struct List {
 
 
 impl Info {
-    pub fn get_fullentry(self, vars: InfoID) -> info::GetFullEntry {
-        info::GetFullEntry::new(&self.inner.clone(), p::info::GetFullEntry {id: vars})
+    pub fn get_fullentry(self, vars: parameter::InfoGetFullEntry) -> info::GetFullEntry {
+        info::GetFullEntry::new(
+			&self.inner.clone(),
+			vars
+		)
     }
 
-    pub fn get_comments(self, vars: p::info::GetComments) -> info::GetComments {
+    pub fn get_comments(self, vars: parameter::InfoGetComments) -> info::GetComments {
         info::GetComments::new(&self.inner.clone(), vars)
     }
 }
@@ -70,7 +73,10 @@ impl Info {
 
 
 impl User {
-	pub fn get_userinfo(self, vars: p::user::Userinfo) -> user::Userinfo {
-		user::Userinfo::new(&self.inner.clone(), vars)
+	pub fn get_userinfo(self, vars: parameter::UserUserinfo) -> user::Userinfo {
+		user::Userinfo::new(
+			&self.inner.clone(),
+			vars
+		)
 	}
 }

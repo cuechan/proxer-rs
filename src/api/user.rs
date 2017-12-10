@@ -1,6 +1,6 @@
 use client::Client;
 use std::collections::HashMap;
-use request::parameter;
+use parameter;
 use Endpoint;
 use response;
 use error;
@@ -13,24 +13,15 @@ use serde_json::Value;
 pub struct Userinfo {
 	client: Client,
 	url: String,
-	data: HashMap<String, String>,
+	data: parameter::UserUserinfo,
 }
 
 impl Userinfo {
-	pub fn new(client: &Client, vars: parameter::user::Userinfo) -> Self
+	pub fn new(client: &Client, vars: parameter::UserUserinfo) -> Self
 	{
-		let mut data = HashMap::new();
-
-		match (vars.uid, vars.username)
-		{
-			(Some(i), None) => data.insert("uid".to_string(), i.to_string()),
-			(None, Some(i)) => data.insert("username".to_string(), i.to_string()),
-			_ => panic!("either username nor uid are given"),
-		};
-
 		Self {
 			client: client.clone(),
-			data: data,
+			data: vars,
 			url: "user/userinfo".to_string(),
 		}
 	}
@@ -38,7 +29,18 @@ impl Userinfo {
 
 
 impl Endpoint for Userinfo {
+	type Parameter = parameter::UserUserinfo;
 	type ResponseType = response::user::Userinfo;
+
+
+	fn new(client: Client, vars: Self::Parameter) -> Self
+	{
+		Self {
+			client: client.clone(),
+			data: vars,
+			url: "user/userinfo".to_string(),
+		}
+	}
 
 
 	fn client(&self) -> Client
@@ -51,7 +53,7 @@ impl Endpoint for Userinfo {
 		self.url.to_owned()
 	}
 
-	fn params_mut(&mut self) -> &mut HashMap<String, String>
+	fn params_mut(&mut self) -> &mut Self::Parameter
 	{
 		&mut self.data
 	}

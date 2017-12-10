@@ -3,7 +3,7 @@ use Endpoint;
 use error;
 use Pageable;
 use Pager;
-use request::parameter as p;
+use parameter;
 use response;
 use std::collections::HashMap;
 use serde_json::Value;
@@ -13,52 +13,21 @@ use serde_json::Value;
 
 
 
-// impl<'a> Info<'a> {
-// 	pub fn get_full_entry(self, vars: p::info::GetFullEntry) -> GetFullEntry<'a> {
-// 		GetFullEntry::new(self.client, vars)
-// 	}
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #[derive(Debug, Clone)]
 pub struct GetFullEntry {
 	client: Client,
-	data: HashMap<String, String>,
+	data: parameter::InfoGetFullEntry,
 	url: String,
 }
 
 
 impl GetFullEntry {
-	pub fn new(client: &Client, vars: p::info::GetFullEntry) -> Self
+	pub fn new(client: &Client, vars: parameter::InfoGetFullEntry) -> Self
 	{
-		let mut data = HashMap::new();
-
-		data.insert("id".to_string(), vars.id.to_string());
-
 		Self {
 			client: client.clone(),
+			data: vars,
 			url: "info/fullentry".to_string(),
-			data: data,
 		}
 	}
 }
@@ -67,9 +36,18 @@ impl GetFullEntry {
 
 
 impl Endpoint for GetFullEntry {
+	type Parameter = parameter::InfoGetFullEntry;
 	type ResponseType = response::info::FullEntry;
 
-	fn params_mut(&mut self) -> &mut HashMap<String, String>
+	fn new(client: Client, vars: Self::Parameter) -> Self {
+		Self {
+			client: client.clone(),
+			data: vars,
+			url: "info/fullentry".to_string(),
+		}
+	}
+
+	fn params_mut(&mut self) -> &mut Self::Parameter
 	{
 		&mut self.data
 	}
@@ -98,7 +76,7 @@ impl Endpoint for GetFullEntry {
 #[derive(Debug, Clone)]
 pub struct GetComments {
 	client: Client,
-	data: HashMap<String, String>,
+	data: parameter::InfoGetComments,
 	url: String,
 }
 
@@ -108,32 +86,11 @@ pub struct GetComments {
 impl GetComments {
 	// type ResponseType = response::info::Comment;
 
-	pub fn new(client: &Client, vars: p::info::GetComments) -> Self
+	pub fn new(client: &Client, vars: parameter::InfoGetComments) -> Self
 	{
-		let mut data = HashMap::new();
-
-		data.insert("id".to_string(), vars.id.to_string());
-
-		if let Some(p) = vars.p {
-			data.insert("p".to_string(), p.to_string());
-		};
-
-		if let Some(limit) = vars.limit {
-			data.insert("limit".to_string(), limit.to_string());
-		};
-
-		if let Some(sort) = vars.sort {
-			data.insert("sort".to_string(), sort.to_string());
-		};
-
-
-
-
-
-
 		Self {
 			client: client.clone(),
-			data: data,
+			data: vars,
 			url: "info/comments".to_string(),
 		}
 	}
@@ -143,7 +100,18 @@ impl GetComments {
 
 
 impl Endpoint for GetComments {
+	type Parameter = parameter::InfoGetComments;
 	type ResponseType = Vec<response::info::Comment>;
+
+
+	fn new(client: Client, vars: parameter::InfoGetComments) -> Self
+	{
+		Self {
+			client: client.clone(),
+			data: vars,
+			url: "info/comments".to_string(),
+		}
+	}
 
 
 	fn client(&self) -> Client
@@ -151,7 +119,7 @@ impl Endpoint for GetComments {
 		self.client.to_owned()
 	}
 
-	fn params_mut(&mut self) -> &mut HashMap<String, String>
+	fn params_mut(&mut self) -> &mut Self::Parameter
 	{
 		&mut self.data
 	}
