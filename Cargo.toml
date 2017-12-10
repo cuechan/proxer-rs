@@ -1,6 +1,6 @@
 [package]
 name = "proxer"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Paul Maruhn <paulmaruhn@gmail.com>"]
 
 description = "Access the ProxerMe API with Rust"
