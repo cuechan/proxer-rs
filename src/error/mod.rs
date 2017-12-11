@@ -1,7 +1,11 @@
 pub mod api;
+pub mod http;
+
+use std;
+use std::fmt;
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub enum Error {
 	Api(api::Api),
 	Json,
@@ -42,5 +46,24 @@ impl Error {
 			Error::Http => false,
 			_ => false,
 		}
+	}
+}
+
+
+impl fmt::Display for Error {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		write!(f, "{:?}", self)
+	}
+}
+
+
+
+
+
+
+
+impl std::error::Error for Error {
+	fn description(&self) -> &str {
+		"general error"
 	}
 }
