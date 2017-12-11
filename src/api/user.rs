@@ -1,5 +1,4 @@
 use client::Client;
-use std::collections::HashMap;
 use parameter;
 use Endpoint;
 use response;

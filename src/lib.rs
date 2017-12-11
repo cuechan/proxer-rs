@@ -88,7 +88,7 @@ where
 	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
 	<T as Endpoint>::Parameter: Iterator + Clone + std::fmt::Debug,
 {
-	pub fn new(mut endpoint: T, mut start: Option<usize>, mut limit: Option<usize>) -> Self
+	pub fn new(endpoint: T, mut start: Option<usize>, mut limit: Option<usize>) -> Self
 	{
 		if limit.is_none() {
 			limit = Some(500);

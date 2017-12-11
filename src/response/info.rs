@@ -1,13 +1,6 @@
-use chrono;
-use chrono::DateTime;
-use error;
 use serde_json;
 use serde_json::Value;
-use serde;
 use std::convert::From;
-use std::fmt;
-use std::thread;
-use std::time;
 use prelude::*;
 
 
@@ -180,14 +173,6 @@ impl From<Value> for Info {
 	fn from(serde_value: serde_json::Value) -> Self
 	{
 		let raw = serde_json::from_value::<RawInfo>(serde_value).expect("unable to parse response");
-
-
-		// parse id
-		let id: i64 = raw.id.parse().unwrap();
-
-
-		// parse description
-		let description = raw.description.clone();
 
 
 		let mut genres = Vec::new();

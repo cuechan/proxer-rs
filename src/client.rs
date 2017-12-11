@@ -1,11 +1,8 @@
 use error;
 use reqwest;
-use reqwest::Url;
 use reqwest::header;
 use serde_json::Value;
 use std;
-use std::collections::HashMap;
-use Endpoint;
 use serde_urlencoded;
 use serde::Serialize;
 use std::fmt;

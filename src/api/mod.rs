@@ -5,7 +5,6 @@ pub mod list;
 
 use client::Client;
 use parameter;
-use prelude::InfoID;
 
 
 /// Shortcuts to the endpoints

@@ -5,7 +5,6 @@ use Pageable;
 use Pager;
 use parameter;
 use response;
-use std::collections::HashMap;
 use serde_json::Value;
 
 
