@@ -9,6 +9,7 @@ use Endpoint;
 use serde_urlencoded;
 use serde::Serialize;
 use std::fmt;
+use std::env;
 
 
 
@@ -43,6 +44,17 @@ impl Client {
 			api_key: api_key,
 			base_uri: API_BASE_PATH.to_string(),
 			user_agent: ua,
+		}
+	}
+
+
+	pub fn with_env_key(env_key: &str) -> Option<Client> {
+		match env::var_os(env_key) {
+			Some(r) => {
+				Some(Client::new(r.into_string().unwrap()))
+			},
+			// using a dummy key
+			None => None
 		}
 	}
 
