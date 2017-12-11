@@ -5,6 +5,7 @@ use Pageable;
 use Pager;
 use parameter;
 use response;
+use serde_json;
 use serde_json::Value;
 
 
@@ -36,7 +37,7 @@ impl GetFullEntry {
 
 impl Endpoint for GetFullEntry {
 	type Parameter = parameter::InfoGetFullEntry;
-	type ResponseType = response::info::FullEntry;
+	type ResponseType = response::info::Fullentry;
 
 	fn new(client: Client, vars: Self::Parameter) -> Self {
 		Self {
@@ -61,7 +62,8 @@ impl Endpoint for GetFullEntry {
 
 	fn parse(&self, json: Value) -> Result<Self::ResponseType, error::Error>
 	{
-		Ok(Self::ResponseType::from(json))
+		let data: Self::ResponseType = serde_json::from_value(json).unwrap();
+		Ok(data)
 	}
 }
 
@@ -131,12 +133,7 @@ impl Endpoint for GetComments {
 
 	fn parse(&self, json: Value) -> Result<Self::ResponseType, error::Error>
 	{
-		let mut res = Self::ResponseType::new();
-		let array = json.as_array().unwrap();
-
-		for comment in array {
-			res.insert(0, response::info::Comment::from(comment.clone()));
-		}
+		let res: Self::ResponseType = serde_json::from_value(json).unwrap();
 
 		Ok(res)
 	}

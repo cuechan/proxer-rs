@@ -3,6 +3,7 @@ use parameter;
 use Endpoint;
 use response;
 use error;
+use serde_json;
 use serde_json::Value;
 
 
@@ -59,6 +60,8 @@ impl Endpoint for Userinfo {
 
 	fn parse(&self, json: Value) -> Result<Self::ResponseType, error::Error>
 	{
-		Ok(Self::ResponseType::from(json))
+		let data: Self::ResponseType = serde_json::from_value(json).unwrap();
+
+		Ok(data)
 	}
 }
