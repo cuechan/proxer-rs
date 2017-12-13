@@ -28,7 +28,7 @@ fn api_response() {
 						_ => panic!("this error is not expected"),
 					}
 				},
-				error::Error::Json => panic!("can't parse json"),
+				error::Error::Json(e) => panic!("can't parse json: {}", e),
 				error::Error::Unknown => panic!("unknown error"),
 				_ => return,
 			}
