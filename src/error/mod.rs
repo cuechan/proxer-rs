@@ -3,13 +3,14 @@ pub mod http;
 
 use std;
 use std::fmt;
+use serde_json;
 
 
 #[derive(Debug)]
 pub enum Error {
 	Api(api::Api),
-	Json,
 	Http,
+	Json(serde_json::Error),
 	Unknown,
 }
 
@@ -20,7 +21,7 @@ impl Error {
 		match self
 		{
 			Error::Api(_) => true,
-			Error::Json => false,
+			Error::Json(_) => false,
 			Error::Http => false,
 			_ => false,
 		}
@@ -31,7 +32,7 @@ impl Error {
 		match self
 		{
 			Error::Api(_) => false,
-			Error::Json => false,
+			Error::Json(_) => false,
 			Error::Http => true,
 			_ => false,
 		}
@@ -42,7 +43,7 @@ impl Error {
 		match self
 		{
 			Error::Api(_) => false,
-			Error::Json => true,
+			Error::Json(_) => true,
 			Error::Http => false,
 			_ => false,
 		}

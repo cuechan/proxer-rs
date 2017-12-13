@@ -2,11 +2,13 @@ use error;
 use reqwest;
 use reqwest::header;
 use serde_json::Value;
+use serde_json;
 use std;
 use serde_urlencoded;
 use serde::Serialize;
 use std::fmt;
 use std::env;
+use std::io::Read;
 
 
 
@@ -101,9 +103,13 @@ impl Client {
 		{
 			Err(e) => return Err(error::Error::Http),
 			Ok(mut res) => {
-				match res.json::<ApiResponse>()
+				let mut json_string = String::new();
+				res.read_to_string(&mut json_string);
+
+
+				match serde_json::from_str::<ApiResponse>(&json_string)
 				{
-					Err(e) => return Err(error::Error::Json),
+					Err(e) => return Err(error::Error::Json(e)),
 					Ok(r) => {
 						if r.error != 0 {
 							Err(error::Error::Api(
