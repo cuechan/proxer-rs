@@ -12,9 +12,9 @@ Making requests is fairly simple:
 
 
 ```rust
-let prxr = proxer::Api::new("yourapikey");
+let prxr = proxer::Client::new("yourapikey");
 // or load the api-key from an environment variable
-let prxr = proxer::Api::with_env_key("PROXER_API_KEY");
+let prxr = proxer::Client::with_env_key("PROXER_API_KEY");
 
 
 let req = client.api().info().get_fullentry(
