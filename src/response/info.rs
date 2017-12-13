@@ -1,40 +1,52 @@
 use serde_json::Value;
+use response::string_as_i64;
+
+
+
+#[derive(Debug, Clone, Deserialize)]
+#[serde(untagged)]
+pub enum SI {
+	I(i64),
+	S(String),
+}
+
 
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Fullentry {
-	id: String,
-	names: Vec<Name>,
-	genre: String,
-	fsk: String,
-	description: String,
-	medium: String,
-	count: String,
-	state: String,
-	rate_sum: String,
-	rate_count: String,
-	clicks: String,
-	kat: String,
-	license: String,
-	tags: Vec<Tag>,
+	//#[serde(deserialize_with = "string_as_i64")]
+	pub id: SI,
+	pub names: Vec<Name>,
+	pub genre: String,
+	pub fsk: String,
+	pub description: String,
+	pub medium: String,
+	pub count: String,
+	pub state: String,
+	pub rate_sum: String,
+	pub rate_count: String,
+	pub clicks: String,
+	pub kat: String,
+	pub license: String,
+	pub tags: Vec<Tag>,
 }
 
 
 #[derive(Debug, Clone, Deserialize)]
-struct Info {
-	id: String,
-	name: String,
-	genre: String,
-	fsk: String,
-	description: String,
-	medium: String,
-	count: String,
-	state: String,
-	rate_sum: String,
-	rate_count: String,
-	clicks: String,
-	kat: Value,
-	license: Value,
+pub struct Info {
+	pub id: String,
+	pub name: String,
+	pub genre: String,
+	pub fsk: String,
+	pub description: String,
+	pub medium: String,
+	pub count: String,
+	pub state: String,
+	pub rate_sum: String,
+	pub rate_count: String,
+	pub clicks: String,
+	pub kat: Value,
+	pub license: Value,
 }
 
 
@@ -56,15 +68,35 @@ pub struct UserList {
 }
 
 
+
+#[derive(Debug, Clone, Deserialize)]
+pub enum SpoilerFlag {
+	#[serde(rename = "0")]
+	NoSpoiler,
+	#[serde(rename = "1")]
+	Spoiler
+}
+
+
+#[derive(Debug, Clone, Deserialize)]
+pub enum RateFlag {
+	#[serde(rename = "0")]
+	NoMatch,
+	#[serde(rename = "1")]
+	Match
+}
+
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct Tag {
 	pub info_id: Option<i64>,
-	pub id: i64,
-	pub tag_id: i64,
-	pub added: String,
-	pub matches: bool,
-	pub spoiler: bool,
-	pub name: String,
+	pub id: SI,
+	#[serde(rename = "tid")]
+	pub tag_id: SI,
+	pub timestamp: String,
+	pub rate_flag: RateFlag,
+	pub spoiler_flag: SpoilerFlag,
+	pub tag: String,
 	pub description: String,
 }
 
