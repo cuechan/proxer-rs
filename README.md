@@ -50,7 +50,10 @@ It tries to be a 1:1 wrapper to the api while providing some nice tweaks like `I
 ```rust
 let req = client.api().info().get_comments(
   parameter::InfoGetComments {
-    id: 53
+    id: 53,
+    p: None,
+    limit: None,
+    sort: None
   }
 );
 
