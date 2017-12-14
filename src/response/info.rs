@@ -1,7 +1,10 @@
 use serde_json::Value;
-// use response::string_as_i64;
+use std::fmt;
 
 
+/// `S`ring/`I`nteger
+/// a temporary type for strings that are integers
+/// if a field with an integer as string is used, just use `.into()`
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
@@ -9,6 +12,29 @@ pub enum SI {
 	I(i64),
 	S(String),
 }
+
+
+impl From<SI> for i64 {
+	fn from(si: SI) -> Self {
+		match si {
+			SI::I(i) => i,
+			SI::S(s) => s.parse::<i64>().unwrap()
+		}
+	}
+}
+
+
+
+impl fmt::Display for SI {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		write!(f, "{}", i64::from(self.to_owned()))
+	}
+}
+
+
+
+
+
 
 
 
@@ -112,19 +138,34 @@ pub struct Name {
 
 
 #[derive(Debug, Clone, Deserialize)]
+pub enum WatchState {
+	#[serde(rename = "0")]
+	Watched,
+	#[serde(rename = "1")]
+	Watching,
+	#[serde(rename = "2")]
+	WillWatch,
+	#[serde(rename = "3")]
+	Cancelled,
+}
+
+
+#[derive(Debug, Clone, Deserialize)]
 pub struct Comment {
-	pub id: i64,
-	pub info_id: i64,
-	pub comment_type: String,
-	pub state: i64, // Todo: use enum for state
+	pub id: SI,
+	#[serde(rename = "tid")]
+	pub info_id: SI,
+	#[serde(rename = "type")]
+	pub comment_type: String, // i have no idea what this is
+	pub state: WatchState,
 	pub data: String,
 	pub comment: String,
-	pub rating: i64,
-	pub episode: i64,
-	pub positive: i64,
-	pub timestamp: i64, //Todo: use chrono here
+	pub rating: SI,
+	pub episode: SI,
+	pub positive: SI,
+	pub timestamp: SI, //Todo: use chrono here
 	pub username: String,
-	pub uid: i64,
+	pub uid: String,
 	pub avatar: String,
 }
 
