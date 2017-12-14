@@ -11,12 +11,15 @@ fn api_response() {
 	// is the api structured as we want it to be?
 	let client =  Client::with_env_key(ENV_KEY).unwrap();
 
+    let req = client
+        .api()
+        .info()
+        .get_fullentry(parameter::InfoGetFullEntry {id: 53});
 
-	let res = client.api().info().get_fullentry(parameter::InfoGetFullEntry {
-		id: 53
-	}).send();
 
-	println!();
+    let res = client.execute(req);
+
+	eprintln!();
 
 
 	match res {
