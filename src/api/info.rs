@@ -35,9 +35,10 @@ impl GetFullEntry {
 
 
 
-impl Endpoint for GetFullEntry {
+impl<'a> Endpoint<'a> for GetFullEntry {
 	type Parameter = parameter::InfoGetFullEntry;
 	type ResponseType = response::info::Fullentry;
+	const URL: &'static str = "info/fullentry";
 
 	fn new(client: Client, vars: Self::Parameter) -> Self {
 		Self {
@@ -62,8 +63,10 @@ impl Endpoint for GetFullEntry {
 
 	fn parse(&self, json: Value) -> Result<Self::ResponseType, error::Error>
 	{
-		let data: Self::ResponseType = serde_json::from_value(json).unwrap();
-		Ok(data)
+		match serde_json::from_value::<Self::ResponseType>(json.clone()) {
+			Ok(data) => Ok(data),
+			Err(e) => Err(error::Error::Json(e))
+		}
 	}
 }
 
@@ -100,9 +103,10 @@ impl GetComments {
 
 
 
-impl Endpoint for GetComments {
+impl<'a> Endpoint<'a> for GetComments {
 	type Parameter = parameter::InfoGetComments;
 	type ResponseType = Vec<response::info::Comment>;
+	const URL: &'static str = "info/comments";
 
 
 	fn new(client: Client, vars: parameter::InfoGetComments) -> Self
@@ -141,9 +145,13 @@ impl Endpoint for GetComments {
 
 
 
-impl Pageable<GetComments> for GetComments {
-	fn pager(self) -> Pager<Self>
-	{
-		Pager::new(self.clone(), None, Some(1_000))
+impl<'a> Pageable<'a, GetComments> for GetComments {
+	fn pager(self, client: Client) -> Pager<'a, GetComments> {
+		Pager::new(
+			client,
+			self,
+			Some(0),
+			Some(3)
+		)
 	}
 }

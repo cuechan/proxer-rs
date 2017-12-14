@@ -28,9 +28,10 @@ impl Userinfo {
 }
 
 
-impl Endpoint for Userinfo {
+impl<'a> Endpoint<'a> for Userinfo {
 	type Parameter = parameter::UserUserinfo;
 	type ResponseType = response::user::Userinfo;
+	const URL: &'static str = "user/userinfo";
 
 
 	fn new(client: Client, vars: Self::Parameter) -> Self

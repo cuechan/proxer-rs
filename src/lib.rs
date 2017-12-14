@@ -24,13 +24,16 @@ pub use prelude::*;
 use serde_json::Value;
 use serde::Serialize;
 use std::fmt;
+use serde::Deserialize;
+use serde::de::DeserializeOwned;
 
 
 
 /// Every struct that is an endpoint, implements this trait.
-pub trait Endpoint {
+pub trait Endpoint<'de> {
 	type Parameter: Serialize + fmt::Debug + Clone;
-	type ResponseType: std::fmt::Debug + Clone;
+	type ResponseType: std::fmt::Debug + Clone + DeserializeOwned;
+	const URL: &'static str;
 
 
 	fn new(Client, Self::Parameter) -> Self;
@@ -39,15 +42,6 @@ pub trait Endpoint {
 	fn client(&self) -> Client;
 	fn url(&self) -> String;
 	fn parse(&self, Value) -> Result<Self::ResponseType, error::Error>;
-
-	fn send(&mut self) -> Result<Self::ResponseType, error::Error>
-	{
-		match self.client().execute(self.url(), self.params_mut().clone())
-		{
-			Err(e) => Err(e),
-			Ok(r) => self.parse(r),
-		}
-	}
 }
 
 
@@ -55,43 +49,53 @@ pub trait Endpoint {
 
 
 
-pub trait Pageable<E>
+pub trait Pageable<'de, E>
 where
-	E: Endpoint + Clone + fmt::Debug,
-	<E as Endpoint>::Parameter: Iterator + Clone + fmt::Debug,
-	<E as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+	E: Endpoint<'de> + Clone + fmt::Debug,
+	<E as Endpoint<'de>>::Parameter: Iterator + Clone + fmt::Debug,
+	<E as Endpoint<'de>>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
 {
-	fn pager(self) -> Pager<E>;
+	fn pager(self, client: Client) -> Pager<'de, E>;
+
+	// fn pager(_self: E, client: Client) -> Pager<'de, E> {
+	// 	Pager::new(
+	// 		client,
+	// 		_self.clone(),
+	// 		None,
+	// 		Some(1_000)
+	// 	)
+	// }
 }
 
 
 
 //#[derive(Debug, Clone)]
-pub struct Pager<T>
+pub struct Pager<'de, T>
 where
-	T: Endpoint + Clone + std::fmt::Debug,
-	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
-	<T as Endpoint>::Parameter: Iterator + Clone + std::fmt::Debug,
+	T: Endpoint<'de> + Clone + std::fmt::Debug,
+	<T as Endpoint<'de>>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+	<T as Endpoint<'de>>::Parameter: Iterator + Clone + std::fmt::Debug,
 {
+	client: Client,
 	limit: usize,
 	current_page: usize,
 	shifted: usize,
 	endpoint: T,
-	data: Vec<<<T as Endpoint>::ResponseType as IntoIterator>::Item>,
+	data: Vec<<<T as Endpoint<'de>>::ResponseType as IntoIterator>::Item>,
 }
 
 
 
 
-impl<T: Endpoint + Clone + std::fmt::Debug> Pager<T>
+impl<'de, T: Endpoint<'de> + Clone + std::fmt::Debug> Pager<'de, T>
 where
-	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
-	<T as Endpoint>::Parameter: Iterator + Clone + std::fmt::Debug,
+	<T as Endpoint<'de>>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+	<T as Endpoint<'de>>::Parameter: Iterator + Clone + std::fmt::Debug,
 {
-	pub fn new(endpoint: T, mut start: Option<usize>, mut limit: Option<usize>) -> Self
+	pub fn new(client: Client, endpoint: T, mut start: Option<usize>, mut limit: Option<usize>) -> Self
 	{
 		if limit.is_none() {
-			limit = Some(500);
+			limit = Some(750);
 		}
 
 		if start.is_none() {
@@ -101,6 +105,7 @@ where
 
 
 		Self {
+			client: client,
 			data: Vec::new(),
 			shifted: limit.unwrap(),
 			limit: limit.unwrap(),
@@ -114,15 +119,15 @@ where
 
 
 
-impl<E> Iterator for Pager<E>
+impl<'de, E> Iterator for Pager<'de, E>
 where
-	E: Endpoint,
+	E: Endpoint<'de>,
 	E: Clone,
 	E: std::fmt::Debug,
-	<E as Endpoint>::Parameter: Iterator + Clone + fmt::Debug,
-	<E as Endpoint>::ResponseType: IntoIterator,
+	<E as Endpoint<'de>>::Parameter: Iterator + Clone + fmt::Debug,
+	<E as Endpoint<'de>>::ResponseType: IntoIterator,
 {
-	type Item = Result<<<E as Endpoint>::ResponseType as IntoIterator>::Item, error::Error>;
+	type Item = Result<<<E as Endpoint<'de>>::ResponseType as IntoIterator>::Item, error::Error>;
 
 	fn next(&mut self) -> Option<Self::Item>
 	{
@@ -147,7 +152,10 @@ where
 
 
 
-				let res = self.endpoint.clone().send().unwrap();
+				let res = self
+					.client
+					.execute(self.endpoint.clone())
+					.unwrap();
 
 
 				for var in res.into_iter() {

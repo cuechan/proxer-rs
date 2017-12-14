@@ -10,9 +10,9 @@ use parameter;
 /// Shortcuts to the endpoints
 
 impl Client {
-	pub fn api(self) -> Api {
+	pub fn api(&self) -> Api {
 		Api {
-			inner: self
+			inner: self.clone()
 		}
 	}
 }
@@ -24,17 +24,17 @@ pub struct Api {
 
 
 impl Api {
-	pub fn info(self) -> Info
+	pub fn info(&self) -> Info
 	{
 		Info { inner: self.inner.clone() }
 	}
 
-	pub fn user(self) -> User
+	pub fn user(&self) -> User
 	{
 		User { inner: self.inner.clone() }
     }
 
-	pub fn list(self) -> List
+	pub fn list(&self) -> List
 	{
 		List { inner: self.inner.clone() }
 	}
