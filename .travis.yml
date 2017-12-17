@@ -7,7 +7,8 @@ dist: trusty
 cache: cargo
 before_script:
   - export PATH="$PATH:$HOME/.cargo/bin"
-  - export RUST_BACKTRACE="full"
+  - export RUST_BACKTRACE="1"
+  - export RUST_LOG="debug"
   - export PROXER_API_KEY="DUMMY"
   - which rustfmt || cargo install rustfmt
 
