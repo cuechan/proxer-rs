@@ -1,9 +1,9 @@
 pub mod api;
 pub mod http;
 
+use serde_json;
 use std;
 use std::fmt;
-use serde_json;
 
 
 #[derive(Debug)]
@@ -60,13 +60,17 @@ impl Error {
 
 
 impl fmt::Display for Error {
-	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-		write!(f, "{}", match *self {
-			Error::Api(_) => "API",
-			Error::Http => "HTTP",
-			Error::Json(_) => "Json",
-			Error::Unknown => "Unknown"
-		})
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
+	{
+		write!(
+			f, "{}", match *self
+			{
+				Error::Api(_) => "API",
+				Error::Http => "HTTP",
+				Error::Json(_) => "Json",
+				Error::Unknown => "Unknown",
+			}
+		)
 	}
 }
 
@@ -77,12 +81,14 @@ impl fmt::Display for Error {
 
 
 impl std::error::Error for Error {
-	fn description(&self) -> &str {
-		match *self {
+	fn description(&self) -> &str
+	{
+		match *self
+		{
 			Error::Api(_) => "API error",
 			Error::Http => "a connection error",
 			Error::Json(_) => "Json error",
-			Error::Unknown => "an unknown error"
+			Error::Unknown => "an unknown error",
 		}
 	}
 }

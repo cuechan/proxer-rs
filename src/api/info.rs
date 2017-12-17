@@ -1,8 +1,8 @@
-use client::Client;
 use Endpoint;
-use error;
-use Pageable;
+use PageableEndpoint;
 use Pager;
+use client::Client;
+use error;
 use parameter;
 use response;
 use serde_json;
@@ -17,20 +17,9 @@ use serde_json::Value;
 pub struct GetFullEntry {
 	client: Client,
 	data: parameter::InfoGetFullEntry,
-	url: String,
 }
 
 
-impl GetFullEntry {
-	pub fn new(client: &Client, vars: parameter::InfoGetFullEntry) -> Self
-	{
-		Self {
-			client: client.clone(),
-			data: vars,
-			url: "info/fullentry".to_string(),
-		}
-	}
-}
 
 
 
@@ -40,11 +29,12 @@ impl<'a> Endpoint<'a> for GetFullEntry {
 	type ResponseType = response::info::Fullentry;
 	const URL: &'static str = "info/fullentry";
 
-	fn new(client: Client, vars: Self::Parameter) -> Self {
+
+	fn new(client: Client, vars: Self::Parameter) -> Self
+	{
 		Self {
 			client: client.clone(),
 			data: vars,
-			url: "info/fullentry".to_string(),
 		}
 	}
 
@@ -53,19 +43,23 @@ impl<'a> Endpoint<'a> for GetFullEntry {
 		&mut self.data
 	}
 
-	fn client(&self) -> Client {
+	fn client(&self) -> Client
+	{
 		self.client.to_owned()
 	}
 
-	fn url(&self) -> String {
-		self.url.to_owned()
+	fn url(&self) -> String
+	{
+		warn!("depricated url");
+		String::from("foobar")
 	}
 
 	fn parse(&self, json: Value) -> Result<Self::ResponseType, error::Error>
 	{
-		match serde_json::from_value::<Self::ResponseType>(json.clone()) {
+		match serde_json::from_value::<Self::ResponseType>(json.clone())
+		{
 			Ok(data) => Ok(data),
-			Err(e) => Err(error::Error::Json(e))
+			Err(e) => Err(error::Error::Json(e)),
 		}
 	}
 }
@@ -145,13 +139,10 @@ impl<'a> Endpoint<'a> for GetComments {
 
 
 
-impl<'a> Pageable<'a, GetComments> for GetComments {
-	fn pager(self, client: Client) -> Pager<'a, GetComments> {
-		Pager::new(
-			client,
-			self,
-			Some(0),
-			Some(3)
-		)
+impl<'a> PageableEndpoint<'a, GetComments> for GetComments {
+	fn pager(self, client: Client) -> Pager<'a, GetComments>
+	{
+		debug!("new pager with data: {:?}", self.data);
+		Pager::new(client, self, Some(0), Some(3))
 	}
 }

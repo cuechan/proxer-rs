@@ -5,7 +5,6 @@ use std::fmt;
 /// `S`ring/`I`nteger
 /// a temporary type for strings that are integers
 /// if a field with an integer as string is used, just use `.into()`
-
 #[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 pub enum SI {
@@ -15,10 +14,12 @@ pub enum SI {
 
 
 impl From<SI> for i64 {
-	fn from(si: SI) -> Self {
-		match si {
+	fn from(si: SI) -> Self
+	{
+		match si
+		{
 			SI::I(i) => i,
-			SI::S(s) => s.parse::<i64>().unwrap()
+			SI::S(s) => s.parse::<i64>().unwrap(),
 		}
 	}
 }
@@ -26,10 +27,12 @@ impl From<SI> for i64 {
 
 
 impl fmt::Display for SI {
-	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
+	{
 		write!(f, "{}", i64::from(self.to_owned()))
 	}
 }
+
 
 
 
@@ -100,7 +103,7 @@ pub enum SpoilerFlag {
 	#[serde(rename = "0")]
 	NoSpoiler,
 	#[serde(rename = "1")]
-	Spoiler
+	Spoiler,
 }
 
 
@@ -109,7 +112,7 @@ pub enum RateFlag {
 	#[serde(rename = "0")]
 	NoMatch,
 	#[serde(rename = "1")]
-	Match
+	Match,
 }
 
 
