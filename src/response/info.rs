@@ -1,6 +1,9 @@
 use serde_json::Value;
 use std::fmt;
 
+/// `S`ring/`I`nteger
+/// a temporary type for strings that are integers
+/// if a field with an integer as string is used, just use `.into()`
 
 /// `S`ring/`I`nteger
 /// a temporary type for strings that are integers
