@@ -1,24 +1,22 @@
 language: rust
 cache: cargo
 before_script:
-- export PATH="$PATH:$HOME/.cargo/bin"
-- which rustfmt || cargo install rustfmt
+  - export PATH="$PATH:$HOME/.cargo/bin"
+  - which rustfmt || cargo install rustfmt
+
 
 script:
-#- cargo fmt -- --write-mode=diff
-- cargo update
-- cargo build
-- cargo test
+  - cargo update
+  - cargo build
+  - cargo test
+
 
 rust:
   - stable
-  - beta
   - nightly
-matrix:
-  allow_failures:
-    - rust: nightly
 
 env:
+  - RUST_BACKTRACE=1
   - PROXER_API_KEY=DUMMY
 
 
