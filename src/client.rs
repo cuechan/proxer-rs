@@ -133,7 +133,7 @@ impl Client {
 						if r.error != 0 {
 							Err(
 								error::Error::Api(
-									error::api::Api::new(r.error, r.message),
+									error::api::Api::new(r.code.unwrap(), r.message),
 								)
 							)
 						}
