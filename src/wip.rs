@@ -15,6 +15,7 @@ fn main()
 	pretty_env_logger::init().unwrap();
 
 	get_comments();
+	get_fullentry();
 }
 
 
