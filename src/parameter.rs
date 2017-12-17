@@ -14,30 +14,37 @@
 
 
 
+pub trait PageableParameter {
+	fn page_mut(&mut self) -> &mut Option<usize>;
+	fn limit_mut(&mut self) -> &mut Option<usize>;
+}
+
+
+
 
 #[derive(Serialize, Debug, Clone)]
 pub struct InfoGetFullEntry {
-	pub id: usize
+	pub id: usize,
 }
 
 
 
 #[derive(Serialize, Debug, Clone)]
 pub struct InfoGetEntry {
-	pub id: usize
+	pub id: usize,
 }
 
 
 #[derive(Serialize, Debug, Clone)]
 pub struct InfoGetNames {
-	pub id: usize
+	pub id: usize,
 }
 
 
 
 #[derive(Serialize, Debug, Clone)]
-pub struct InfoGetGate{
-	pub id: usize
+pub struct InfoGetGate {
+	pub id: usize,
 }
 
 
@@ -45,28 +52,28 @@ pub struct InfoGetGate{
 
 
 #[derive(Serialize, Debug, Clone)]
-pub struct InfoGetLang{
-	pub id: usize
+pub struct InfoGetLang {
+	pub id: usize,
 }
 
 
 
 #[derive(Serialize, Debug, Clone)]
-pub struct InfoGetSeason{
-	pub id: usize
+pub struct InfoGetSeason {
+	pub id: usize,
 }
 
 
 #[derive(Serialize, Debug, Clone)]
-pub struct InfoGetGroups{
-	pub id: usize
+pub struct InfoGetGroups {
+	pub id: usize,
 }
 
 
 
 #[derive(Serialize, Debug, Clone)]
-pub struct InfoGetPublisher{
-	pub id: usize
+pub struct InfoGetPublisher {
+	pub id: usize,
 }
 
 
@@ -84,21 +91,19 @@ pub struct InfoGetListinfo {
 #[derive(Serialize, Debug, Clone)]
 pub struct InfoGetComments {
 	pub id: usize,
-	pub p: Option<i64>,
-	pub limit: Option<i64>,
+	pub p: Option<usize>,
+	pub limit: Option<usize>,
 	pub sort: Option<String>,
 }
 
-impl Iterator for InfoGetComments {
-	type Item = Self;
-
-	fn next(&mut self) -> Option<Self::Item> {
-		self.p = match self.p {
-			Some(p) => Some(p + 1),
-			None => Some(0)
-		};
-
-		Some(self.clone())
+impl PageableParameter for InfoGetComments {
+	fn page_mut(&mut self) -> &mut Option<usize>
+	{
+		&mut self.p
+	}
+	fn limit_mut(&mut self) -> &mut Option<usize>
+	{
+		&mut self.limit
 	}
 }
 
@@ -114,22 +119,22 @@ pub struct InfoGetRelations {
 
 
 #[derive(Serialize, Debug, Clone)]
-pub struct InfoEntryTags{
-	pub id: usize
+pub struct InfoEntryTags {
+	pub id: usize,
 }
 
 
 
 #[derive(Serialize, Debug, Clone)]
-pub struct GetTranslatorgroup{
-	pub id: usize
+pub struct GetTranslatorgroup {
+	pub id: usize,
 }
 
 
 
 #[derive(Serialize, Debug, Clone)]
-pub struct InfoGetIndustry{
-	pub id: usize
+pub struct InfoGetIndustry {
+	pub id: usize,
 }
 
 
@@ -159,10 +164,12 @@ pub struct ListGetList {
 impl Iterator for ListGetList {
 	type Item = Self;
 
-	fn next(&mut self) -> Option<Self::Item> {
-		self.p = match self.p {
+	fn next(&mut self) -> Option<Self::Item>
+	{
+		self.p = match self.p
+		{
 			Some(p) => Some(p + 1),
-			None => Some(0)
+			None => Some(0),
 		};
 
 		Some(self.clone())

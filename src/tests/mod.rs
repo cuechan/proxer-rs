@@ -17,9 +17,6 @@ fn api_response()
 		.info()
 		.get_fullentry(parameter::InfoGetFullEntry { id: 53 });
 
-	let res = client.api().info().get_fullentry(parameter::InfoGetFullEntry {
-		id: 53
-	}).send();
 
 	let res = client.execute(req);
 

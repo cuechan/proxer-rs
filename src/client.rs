@@ -1,13 +1,15 @@
+use Endpoint;
 use error;
 use reqwest;
 use reqwest::header;
-use serde_json::Value;
-use serde_json;
-use std;
-use serde_urlencoded;
+use serde::Deserialize;
 use serde::Serialize;
-use std::fmt;
+use serde_json;
+use serde_json::Value;
+use serde_urlencoded;
+use std;
 use std::env;
+use std::fmt;
 use std::io::Read;
 
 
@@ -33,8 +35,11 @@ impl Client {
 	/// Create a new api client
 	pub fn new(api_key: String) -> Self
 	{
-		let crates_version = &std::env::var("CARGO_PKG_VERSION").unwrap_or("unknown".to_string());
-		let crates_name = std::env::var("CARGO_PKG_NAME").unwrap_or("unknown".to_string());
+		let crates_version = &std::env::var("CARGO_PKG_VERSION")
+			.unwrap_or("unknown".to_string());
+
+		let crates_name = std::env::var("CARGO_PKG_NAME")
+			.unwrap_or("unknown".to_string());
 
 
 		let ua = format!("libproxer-rust({}/v{})", crates_name, crates_version);
@@ -47,22 +52,25 @@ impl Client {
 	}
 
 
-	pub fn with_env_key(env_key: &str) -> Option<Client> {
-		match env::var_os(env_key) {
-			Some(r) => {
-				Some(Client::new(r.into_string().unwrap()))
-			},
-			// using a dummy key
-			None => None
+	pub fn with_env_key(env_key: &str) -> Option<Client>
+	{
+		match env::var_os(env_key)
+		{
+			Some(r) => Some(Client::new(r.into_string().unwrap())),
+			None => None,
 		}
 	}
 
 
 
 	/// execute a request that satisfies [Request](../trait.Request.html)
-	pub fn execute<T: Serialize + Clone + fmt::Debug>(self, url: String, req: T) -> Result<Value, error::Error>
+	pub fn execute<'a, T: super::Endpoint<'a> + Clone + fmt::Debug>(
+		&self,
+		mut endpoint: T,
+	) -> Result<T::ResponseType, error::Error>
 	{
-		let uristring = self.base_uri.to_string() + &url;
+
+		let uristring = self.base_uri.to_string() + T::URL;
 
 
 		header!{(ProxerApiKey, "Proxer-Api-Key") => [String]}
@@ -76,29 +84,33 @@ impl Client {
 
 
 
-		let mut http_req = reqwest::Request::new(reqwest::Method::Post, uristring.parse().unwrap());
+		let mut http_req = reqwest::Request::new(
+			reqwest::Method::Post,
+			uristring.parse().unwrap(),
+		);
 
 		// add our headers to the request
 		http_req.headers_mut().extend(headers.iter());
 
-		match serde_urlencoded::to_string(req.clone()) {
-            Ok(body) => {
-                *http_req.body_mut() = Some(body.into());
-            },
-            Err(err) => panic!("can't serialize form parameters"),
-        }
+		match serde_urlencoded::to_string(endpoint.params_mut().clone())
+		{
+			Ok(body) => {
+				debug!("post data: {}", body);
+				*http_req.body_mut() = Some(body.into());
+			}
+			Err(err) => panic!("can't serialize form parameters"),
+		}
 
 
 		let client = reqwest::Client::new();
 
-		let response = client
-			.execute(http_req);
+		let response = client.execute(http_req);
 
 
 
 
-		// let api_response;
 
+		// This section needs some reqriting. maybe... later
 		match response
 		{
 			Err(e) => return Err(error::Error::Http),
@@ -106,15 +118,24 @@ impl Client {
 				let mut json_string = String::new();
 				res.read_to_string(&mut json_string);
 
+				// println!("{}", json_string);
+				//
+				// let value: Value = serde_json::from_str(&json_string).unwrap();
+				// println!("{:#?}", value);
 
-				match serde_json::from_str::<ApiResponse>(&json_string)
+
+				match serde_json::from_str::<ApiResponse<T::ResponseType>>(
+					&json_string,
+				)
 				{
 					Err(e) => return Err(error::Error::Json(e)),
 					Ok(r) => {
 						if r.error != 0 {
-							Err(error::Error::Api(
-								error::api::Api::from(r)
-							))
+							Err(
+								error::Error::Api(
+									error::api::Api::new(r.error, r.message),
+								)
+							)
 						}
 						else {
 							Ok(r.data.unwrap())
@@ -129,13 +150,13 @@ impl Client {
 
 /// responses are parsed into ApiRequest
 #[derive(Debug, Clone, Deserialize)]
-pub struct ApiResponse {
+pub struct ApiResponse<T> {
 	/// api error
 	pub error: i64,
 	/// api message
 	pub message: String,
 	/// actual data
-	pub data: Option<Value>,
+	pub data: Option<T>,
 	/// optional error code
 	/// in case of an error this contains the error code
 	pub code: Option<i64>,

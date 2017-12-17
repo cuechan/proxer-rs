@@ -23,17 +23,17 @@ pub struct Api {
 
 
 impl Api {
-	pub fn info(self) -> Info
+	pub fn info(&self) -> Info
 	{
 		Info { inner: self.inner.clone() }
 	}
 
-	pub fn user(self) -> User
+	pub fn user(&self) -> User
 	{
 		User { inner: self.inner.clone() }
 	}
 
-	pub fn list(self) -> List
+	pub fn list(&self) -> List
 	{
 		List { inner: self.inner.clone() }
 	}

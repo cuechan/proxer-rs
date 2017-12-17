@@ -7,6 +7,8 @@ extern crate serde_json;
 extern crate serde;
 extern crate serde_urlencoded;
 #[macro_use]
+extern crate log;
+#[macro_use]
 extern crate hyper;
 
 pub mod error;
@@ -18,19 +20,22 @@ pub mod tests;
 pub mod parameter;
 
 pub use client::Client;
+use parameter::PageableParameter;
 pub use prelude::*;
-
+use serde::Deserialize;
+use serde::Serialize;
+use serde::de::DeserializeOwned;
 
 use serde_json::Value;
-use serde::Serialize;
 use std::fmt;
 
 
 
 /// Every struct that is an endpoint, implements this trait.
-pub trait Endpoint {
+pub trait Endpoint<'de> {
 	type Parameter: Serialize + fmt::Debug + Clone;
-	type ResponseType: std::fmt::Debug + Clone;
+	type ResponseType: std::fmt::Debug + Clone + DeserializeOwned;
+	const URL: &'static str;
 
 
 	fn new(Client, Self::Parameter) -> Self;
@@ -39,15 +44,6 @@ pub trait Endpoint {
 	fn client(&self) -> Client;
 	fn url(&self) -> String;
 	fn parse(&self, Value) -> Result<Self::ResponseType, error::Error>;
-
-	fn send(&mut self) -> Result<Self::ResponseType, error::Error>
-	{
-		match self.client().execute(self.url(), self.params_mut().clone())
-		{
-			Err(e) => Err(e),
-			Ok(r) => self.parse(r),
-		}
-	}
 }
 
 
@@ -55,58 +51,88 @@ pub trait Endpoint {
 
 
 
-pub trait Pageable<E>
+pub trait PageableEndpoint<'de, E>
 where
-	E: Endpoint + Clone + fmt::Debug,
-	<E as Endpoint>::Parameter: Iterator + Clone + fmt::Debug,
-	<E as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+	E: Endpoint<'de> + Clone + fmt::Debug,
+	<E as Endpoint<'de>>::Parameter: PageableParameter + Clone + fmt::Debug,
+	<E as Endpoint<'de>>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
 {
-	fn pager(self) -> Pager<E>;
+	fn pager(self, client: Client) -> Pager<'de, E>;
+
+	// fn pager(_self: E, client: Client) -> Pager<'de, E> {
+// 	Pager::new(
+// 		client,
+// 		_self.clone(),
+// 		None,
+// 		Some(1_000)
+// 	)
+// }
 }
 
 
 
 //#[derive(Debug, Clone)]
-pub struct Pager<T>
+pub struct Pager<'de, T>
 where
-	T: Endpoint + Clone + std::fmt::Debug,
-	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
-	<T as Endpoint>::Parameter: Iterator + Clone + std::fmt::Debug,
+	T: Endpoint<'de> + Clone + std::fmt::Debug,
+	<T as Endpoint<'de>>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+	<T as Endpoint<'de>>::Parameter: PageableParameter + Clone + std::fmt::Debug,
 {
-	limit: usize,
-	current_page: usize,
+	client: Client,
 	shifted: usize,
 	endpoint: T,
-	data: Vec<<<T as Endpoint>::ResponseType as IntoIterator>::Item>,
+	data: Vec<<<T as Endpoint<'de>>::ResponseType as IntoIterator>::Item>,
 }
 
 
 
 
-impl<T: Endpoint + Clone + std::fmt::Debug> Pager<T>
+impl<'de, T: Endpoint<'de> + Clone + std::fmt::Debug> Pager<'de, T>
 where
-	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
-	<T as Endpoint>::Parameter: Iterator + Clone + std::fmt::Debug,
+	<T as Endpoint<'de>>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+	<T as Endpoint<'de>>::Parameter: PageableParameter + Clone + std::fmt::Debug,
 {
-	pub fn new(endpoint: T, mut start: Option<usize>, mut limit: Option<usize>) -> Self
+	pub fn new(
+		client: Client,
+		mut endpoint: T,
+		mut start: Option<usize>,
+		mut limit: Option<usize>
+	) -> Self
 	{
-		if limit.is_none() {
-			limit = Some(500);
+
+		match (endpoint.params_mut().page_mut(), start) {
+			(&mut None, None) => *endpoint.params_mut().page_mut() = Some(0),
+			(&mut None, Some(_)) => *endpoint.params_mut().page_mut() = start,
+			_ => {}
 		}
 
-		if start.is_none() {
-			start = Some(0);
+		match (endpoint.params_mut().limit_mut(), limit) {
+			(&mut None, None) => *endpoint.params_mut().limit_mut() = Some(750),
+			(&mut None, Some(_)) => *endpoint.params_mut().limit_mut() = limit,
+			_ => {}
 		}
 
+		debug!(
+			"initialize new pager: page: {}, limit {}",
+			endpoint.params_mut().page_mut().unwrap(),
+			endpoint.params_mut().limit_mut().unwrap(),
+		);
 
 
 		Self {
+			client: client,
 			data: Vec::new(),
-			shifted: limit.unwrap(),
-			limit: limit.unwrap(),
+			shifted: 0,
 			endpoint: endpoint,
-			current_page: start.unwrap(),
 		}
+	}
+
+	fn page_mut(&mut self) -> usize {
+		self.endpoint.params_mut().page_mut().unwrap()
+	}
+
+	fn limit_mut(&mut self) -> usize {
+		self.endpoint.params_mut().limit_mut().unwrap()
 	}
 }
 
@@ -114,48 +140,57 @@ where
 
 
 
-impl<E> Iterator for Pager<E>
+impl<'de, E> Iterator for Pager<'de, E>
 where
-	E: Endpoint,
+	E: Endpoint<'de>,
 	E: Clone,
 	E: std::fmt::Debug,
-	<E as Endpoint>::Parameter: Iterator + Clone + fmt::Debug,
-	<E as Endpoint>::ResponseType: IntoIterator,
+	<E as Endpoint<'de>>::Parameter: PageableParameter + Clone + fmt::Debug,
+	<E as Endpoint<'de>>::ResponseType: IntoIterator,
 {
-	type Item = Result<<<E as Endpoint>::ResponseType as IntoIterator>::Item, error::Error>;
+	type Item = Result<<<E as Endpoint<'de>>::ResponseType as IntoIterator>::Item, error::Error>;
 
 	fn next(&mut self) -> Option<Self::Item>
 	{
 		match self.data.pop()
 		{
 			Some(i) => {
+				debug!("returning from buffer");
 				self.shifted += 1;
+
+				debug!("buffer: remaining/shifted: {}/{}",
+					self.data.len(),
+					self.shifted,
+				);
 				Some(Ok(i))
 			}
 			None => {
-				if self.shifted < self.limit {
+				debug!("expected shifted: {}", self.page_mut() * self.limit_mut());
+				debug!("actually shifted: {}", self.shifted);
+
+				if self.page_mut() * self.limit_mut() > self.shifted {
+					debug!("reached the last page");
 					return None;
 				}
 
 
-				self.endpoint
-					.params_mut()
-					.next();
 
+				debug!("fetching new data");
+				let res = self.client.execute(self.endpoint.clone()).unwrap();
 
-				self.current_page += 1;
-
-
-
-				let res = self.endpoint.clone().send().unwrap();
 
 
 				for var in res.into_iter() {
 					self.data.push(var);
 				}
-				self.shifted = 0;
 
-				// std::thread::sleep(std::time::Duration::new(1, 5_000_000));
+				debug!("filled buffer with {} entries", self.data.len());
+
+
+				*self.endpoint
+					.params_mut()
+					.page_mut() = Some(self.page_mut() + 1);
+
 				self.next()
 
 			}

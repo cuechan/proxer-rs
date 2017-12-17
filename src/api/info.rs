@@ -24,9 +24,10 @@ pub struct GetFullEntry {
 
 
 
-impl Endpoint for GetFullEntry {
+impl<'a> Endpoint<'a> for GetFullEntry {
 	type Parameter = parameter::InfoGetFullEntry;
 	type ResponseType = response::info::Fullentry;
+	const URL: &'static str = "info/fullentry";
 
 
 	fn new(client: Client, vars: Self::Parameter) -> Self
@@ -96,9 +97,10 @@ impl GetComments {
 
 
 
-impl Endpoint for GetComments {
+impl<'a> Endpoint<'a> for GetComments {
 	type Parameter = parameter::InfoGetComments;
 	type ResponseType = Vec<response::info::Comment>;
+	const URL: &'static str = "info/comments";
 
 
 	fn new(client: Client, vars: parameter::InfoGetComments) -> Self

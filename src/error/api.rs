@@ -140,8 +140,8 @@ impl From<serde_json::Value> for Api {
 }
 
 
-impl From<client::ApiResponse> for Api {
-	fn from(res: client::ApiResponse) -> Self
+impl<T> From<client::ApiResponse<T>> for Api {
+	fn from(res: client::ApiResponse<T>) -> Self
 	{
 		Self {
 			code: res.code.unwrap(),
