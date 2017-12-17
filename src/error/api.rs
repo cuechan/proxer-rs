@@ -1,6 +1,6 @@
-use std::fmt;
-use serde_json;
 use client;
+use serde_json;
+use std::fmt;
 
 
 
@@ -116,7 +116,8 @@ impl Api {
 		}
 	}
 
-	pub fn error(&self) -> Errcode {
+	pub fn error(&self) -> Errcode
+	{
 		self.error
 	}
 }

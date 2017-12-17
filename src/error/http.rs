@@ -1,5 +1,5 @@
-use std::fmt;
 use reqwest;
+use std::fmt;
 
 
 
@@ -14,10 +14,9 @@ pub struct Http {
 
 
 impl Http {
-	pub fn new(error: reqwest::Error) -> Self {
-		Self {
-			err: error
-		}
+	pub fn new(error: reqwest::Error) -> Self
+	{
+		Self { err: error }
 	}
 }
 

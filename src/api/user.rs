@@ -1,8 +1,8 @@
-use client::Client;
-use parameter;
 use Endpoint;
-use response;
+use client::Client;
 use error;
+use parameter;
+use response;
 use serde_json;
 use serde_json::Value;
 

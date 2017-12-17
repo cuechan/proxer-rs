@@ -1,8 +1,8 @@
-use client::Client;
 use Endpoint;
-use error;
-use Pageable;
+use PageableEndpoint;
 use Pager;
+use client::Client;
+use error;
 use parameter;
 use response;
 use serde_json;
@@ -17,20 +17,9 @@ use serde_json::Value;
 pub struct GetFullEntry {
 	client: Client,
 	data: parameter::InfoGetFullEntry,
-	url: String,
 }
 
 
-impl GetFullEntry {
-	pub fn new(client: &Client, vars: parameter::InfoGetFullEntry) -> Self
-	{
-		Self {
-			client: client.clone(),
-			data: vars,
-			url: "info/fullentry".to_string(),
-		}
-	}
-}
 
 
 
@@ -39,11 +28,12 @@ impl Endpoint for GetFullEntry {
 	type Parameter = parameter::InfoGetFullEntry;
 	type ResponseType = response::info::Fullentry;
 
-	fn new(client: Client, vars: Self::Parameter) -> Self {
+
+	fn new(client: Client, vars: Self::Parameter) -> Self
+	{
 		Self {
 			client: client.clone(),
 			data: vars,
-			url: "info/fullentry".to_string(),
 		}
 	}
 
@@ -52,18 +42,24 @@ impl Endpoint for GetFullEntry {
 		&mut self.data
 	}
 
-	fn client(&self) -> Client {
+	fn client(&self) -> Client
+	{
 		self.client.to_owned()
 	}
 
-	fn url(&self) -> String {
-		self.url.to_owned()
+	fn url(&self) -> String
+	{
+		warn!("depricated url");
+		String::from("foobar")
 	}
 
 	fn parse(&self, json: Value) -> Result<Self::ResponseType, error::Error>
 	{
-		let data: Self::ResponseType = serde_json::from_value(json).unwrap();
-		Ok(data)
+		match serde_json::from_value::<Self::ResponseType>(json.clone())
+		{
+			Ok(data) => Ok(data),
+			Err(e) => Err(error::Error::Json(e)),
+		}
 	}
 }
 
@@ -141,9 +137,10 @@ impl Endpoint for GetComments {
 
 
 
-impl Pageable<GetComments> for GetComments {
-	fn pager(self) -> Pager<Self>
+impl<'a> PageableEndpoint<'a, GetComments> for GetComments {
+	fn pager(self, client: Client) -> Pager<'a, GetComments>
 	{
-		Pager::new(self.clone(), None, Some(1_000))
+		debug!("new pager with data: {:?}", self.data);
+		Pager::new(client, self, Some(0), Some(3))
 	}
 }

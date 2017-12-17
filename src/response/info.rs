@@ -2,13 +2,42 @@ use serde_json::Value;
 // use response::string_as_i64;
 
 
-
+/// `S`ring/`I`nteger
+/// a temporary type for strings that are integers
+/// if a field with an integer as string is used, just use `.into()`
 #[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 pub enum SI {
 	I(i64),
 	S(String),
 }
+
+
+impl From<SI> for i64 {
+	fn from(si: SI) -> Self
+	{
+		match si
+		{
+			SI::I(i) => i,
+			SI::S(s) => s.parse::<i64>().unwrap(),
+		}
+	}
+}
+
+
+
+impl fmt::Display for SI {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
+	{
+		write!(f, "{}", i64::from(self.to_owned()))
+	}
+}
+
+
+
+
+
+
 
 
 
@@ -74,7 +103,7 @@ pub enum SpoilerFlag {
 	#[serde(rename = "0")]
 	NoSpoiler,
 	#[serde(rename = "1")]
-	Spoiler
+	Spoiler,
 }
 
 
@@ -83,7 +112,7 @@ pub enum RateFlag {
 	#[serde(rename = "0")]
 	NoMatch,
 	#[serde(rename = "1")]
-	Match
+	Match,
 }
 
 
