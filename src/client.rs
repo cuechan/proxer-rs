@@ -3,7 +3,6 @@ use reqwest;
 use reqwest::header;
 use serde_json;
 use serde_urlencoded;
-use std;
 use std::env;
 use std::fmt;
 use std::io::Read;
@@ -31,11 +30,9 @@ impl Client {
 	/// Create a new api client
 	pub fn new(api_key: String) -> Self
 	{
-		let crates_version = &std::env::var("CARGO_PKG_VERSION")
-			.unwrap_or("unknown".to_string());
+		let crates_name = env::var("CARGO_PKG_NAME").unwrap_or("unknown".to_string());
 
-		let crates_name = std::env::var("CARGO_PKG_NAME")
-			.unwrap_or("unknown".to_string());
+		let crates_version = &env::var("CARGO_PKG_VERSION").unwrap_or("unknown".to_string());
 
 
 		let ua = format!("libproxer-rust({}/v{})", crates_name, crates_version);
@@ -61,6 +58,7 @@ impl Client {
 
 	/// execute a request that satisfies [Request](../trait.Request.html)
 	pub fn execute<'a, T: super::Endpoint + Clone + fmt::Debug>(
+
 		&self,
 		mut endpoint: T,
 	) -> Result<T::ResponseType, error::Error>
@@ -80,10 +78,7 @@ impl Client {
 
 
 
-		let mut http_req = reqwest::Request::new(
-			reqwest::Method::Post,
-			uristring.parse().unwrap(),
-		);
+		let mut http_req = reqwest::Request::new(reqwest::Method::Post, uristring.parse().unwrap());
 
 		// add our headers to the request
 		http_req.headers_mut().extend(headers.iter());
@@ -120,18 +115,12 @@ impl Client {
 				// println!("{:#?}", value);
 
 
-				match serde_json::from_str::<ApiResponse<T::ResponseType>>(
-					&json_string,
-				)
+				match serde_json::from_str::<ApiResponse<T::ResponseType>>(&json_string)
 				{
 					Err(e) => return Err(error::Error::Json(e)),
 					Ok(r) => {
 						if r.error != 0 {
-							Err(
-								error::Error::Api(
-									error::api::Api::new(r.code.unwrap(), r.message),
-								)
-							)
+							Err(error::Error::Api(error::api::Api::new(r.code.unwrap(), r.message)))
 						}
 						else {
 							Ok(r.data.unwrap())

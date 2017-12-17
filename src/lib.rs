@@ -20,9 +20,9 @@ pub mod tests;
 pub mod parameter;
 
 pub use client::Client;
-pub use prelude::*;
 
 use parameter::PageableParameter;
+pub use prelude::*;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 
@@ -60,13 +60,13 @@ where
 	fn pager(self, client: Client) -> Pager<E>;
 
 	// fn pager(_self: E, client: Client) -> Pager<'de, E> {
-// 	Pager::new(
-// 		client,
-// 		_self.clone(),
-// 		None,
-// 		Some(1_000)
-// 	)
-// }
+	// 	Pager::new(
+	// 		client,
+	// 		_self.clone(),
+	// 		None,
+	// 		Some(1_000)
+	// 	)
+	// }
 }
 
 
@@ -187,9 +187,7 @@ where
 				debug!("filled buffer with {} entries", self.data.len());
 
 
-				*self.endpoint
-					.params_mut()
-					.page_mut() = Some(self.page_mut() + 1);
+				*self.endpoint.params_mut().page_mut() = Some(self.page_mut() + 1);
 
 				self.next()
 

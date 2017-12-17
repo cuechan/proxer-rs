@@ -55,18 +55,12 @@ pub struct List {
 
 
 impl Info {
-	pub fn get_fullentry(
-		self,
-		vars: parameter::InfoGetFullEntry,
-	) -> info::GetFullEntry
+	pub fn get_fullentry(self, vars: parameter::InfoGetFullEntry) -> info::GetFullEntry
 	{
 		info::GetFullEntry::new(self.inner.clone(), vars)
 	}
 
-	pub fn get_comments(
-		self,
-		vars: parameter::InfoGetComments,
-	) -> info::GetComments
+	pub fn get_comments(self, vars: parameter::InfoGetComments) -> info::GetComments
 	{
 		info::GetComments::new(&self.inner.clone(), vars)
 	}
