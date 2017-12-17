@@ -1,7 +1,14 @@
 language: rust
+
+sudo: false
+dist: trusty
+
+
 cache: cargo
 before_script:
   - export PATH="$PATH:$HOME/.cargo/bin"
+  - export RUST_BACKTRACE=1
+  - export PROXER_API_KEY=DUMMY
   - which rustfmt || cargo install rustfmt
 
 
@@ -14,11 +21,6 @@ script:
 rust:
   - stable
   - nightly
-
-env:
-  - RUST_BACKTRACE=1
-  - PROXER_API_KEY=DUMMY
-
 
 notifications:
   webhooks: https://fathomless-fjord-24024.herokuapp.com/notify
