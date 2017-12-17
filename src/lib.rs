@@ -7,6 +7,8 @@ extern crate serde_json;
 extern crate serde;
 extern crate serde_urlencoded;
 #[macro_use]
+extern crate log;
+#[macro_use]
 extern crate hyper;
 
 pub mod error;
@@ -18,14 +20,14 @@ pub mod tests;
 pub mod parameter;
 
 pub use client::Client;
+use parameter::PageableParameter;
 pub use prelude::*;
-
+use serde::Deserialize;
+use serde::Serialize;
+use serde::de::DeserializeOwned;
 
 use serde_json::Value;
-use serde::Serialize;
 use std::fmt;
-use serde::Deserialize;
-use serde::de::DeserializeOwned;
 
 
 
@@ -49,22 +51,22 @@ pub trait Endpoint<'de> {
 
 
 
-pub trait Pageable<'de, E>
+pub trait PageableEndpoint<'de, E>
 where
 	E: Endpoint<'de> + Clone + fmt::Debug,
-	<E as Endpoint<'de>>::Parameter: Iterator + Clone + fmt::Debug,
+	<E as Endpoint<'de>>::Parameter: PageableParameter + Clone + fmt::Debug,
 	<E as Endpoint<'de>>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
 {
 	fn pager(self, client: Client) -> Pager<'de, E>;
 
 	// fn pager(_self: E, client: Client) -> Pager<'de, E> {
-	// 	Pager::new(
-	// 		client,
-	// 		_self.clone(),
-	// 		None,
-	// 		Some(1_000)
-	// 	)
-	// }
+// 	Pager::new(
+// 		client,
+// 		_self.clone(),
+// 		None,
+// 		Some(1_000)
+// 	)
+// }
 }
 
 
@@ -74,11 +76,9 @@ pub struct Pager<'de, T>
 where
 	T: Endpoint<'de> + Clone + std::fmt::Debug,
 	<T as Endpoint<'de>>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
-	<T as Endpoint<'de>>::Parameter: Iterator + Clone + std::fmt::Debug,
+	<T as Endpoint<'de>>::Parameter: PageableParameter + Clone + std::fmt::Debug,
 {
 	client: Client,
-	limit: usize,
-	current_page: usize,
 	shifted: usize,
 	endpoint: T,
 	data: Vec<<<T as Endpoint<'de>>::ResponseType as IntoIterator>::Item>,
@@ -90,28 +90,49 @@ where
 impl<'de, T: Endpoint<'de> + Clone + std::fmt::Debug> Pager<'de, T>
 where
 	<T as Endpoint<'de>>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
-	<T as Endpoint<'de>>::Parameter: Iterator + Clone + std::fmt::Debug,
+	<T as Endpoint<'de>>::Parameter: PageableParameter + Clone + std::fmt::Debug,
 {
-	pub fn new(client: Client, endpoint: T, mut start: Option<usize>, mut limit: Option<usize>) -> Self
+	pub fn new(
+		client: Client,
+		mut endpoint: T,
+		mut start: Option<usize>,
+		mut limit: Option<usize>
+	) -> Self
 	{
-		if limit.is_none() {
-			limit = Some(750);
+
+		match (endpoint.params_mut().page_mut(), start) {
+			(&mut None, None) => *endpoint.params_mut().page_mut() = Some(0),
+			(&mut None, Some(_)) => *endpoint.params_mut().page_mut() = start,
+			_ => {}
 		}
 
-		if start.is_none() {
-			start = Some(0);
+		match (endpoint.params_mut().limit_mut(), limit) {
+			(&mut None, None) => *endpoint.params_mut().limit_mut() = Some(750),
+			(&mut None, Some(_)) => *endpoint.params_mut().limit_mut() = limit,
+			_ => {}
 		}
 
+		debug!(
+			"initialize new pager: page: {}, limit {}",
+			endpoint.params_mut().page_mut().unwrap(),
+			endpoint.params_mut().limit_mut().unwrap(),
+		);
 
 
 		Self {
 			client: client,
 			data: Vec::new(),
-			shifted: limit.unwrap(),
-			limit: limit.unwrap(),
+			shifted: 0,
 			endpoint: endpoint,
-			current_page: start.unwrap(),
 		}
+	}
+
+	fn page_mut(&mut self) -> usize {
+		self.endpoint.params_mut().page_mut().unwrap()
+	}
+
+	fn limit_mut(&mut self) -> usize {
+		self.endpoint.params_mut().limit_mut().unwrap()
 	}
 }
 
@@ -124,7 +145,7 @@ where
 	E: Endpoint<'de>,
 	E: Clone,
 	E: std::fmt::Debug,
-	<E as Endpoint<'de>>::Parameter: Iterator + Clone + fmt::Debug,
+	<E as Endpoint<'de>>::Parameter: PageableParameter + Clone + fmt::Debug,
 	<E as Endpoint<'de>>::ResponseType: IntoIterator,
 {
 	type Item = Result<<<E as Endpoint<'de>>::ResponseType as IntoIterator>::Item, error::Error>;
@@ -134,36 +155,42 @@ where
 		match self.data.pop()
 		{
 			Some(i) => {
+				debug!("returning from buffer");
 				self.shifted += 1;
+
+				debug!("buffer: remaining/shifted: {}/{}",
+					self.data.len(),
+					self.shifted,
+				);
 				Some(Ok(i))
 			}
 			None => {
-				if self.shifted < self.limit {
+				debug!("expected shifted: {}", self.page_mut() * self.limit_mut());
+				debug!("actually shifted: {}", self.shifted);
+
+				if self.page_mut() * self.limit_mut() > self.shifted {
+					debug!("reached the last page");
 					return None;
 				}
 
 
-				self.endpoint
-					.params_mut()
-					.next();
 
+				debug!("fetching new data");
+				let res = self.client.execute(self.endpoint.clone()).unwrap();
 
-				self.current_page += 1;
-
-
-
-				let res = self
-					.client
-					.execute(self.endpoint.clone())
-					.unwrap();
 
 
 				for var in res.into_iter() {
 					self.data.push(var);
 				}
-				self.shifted = 0;
 
-				// std::thread::sleep(std::time::Duration::new(1, 5_000_000));
+				debug!("filled buffer with {} entries", self.data.len());
+
+
+				*self.endpoint
+					.params_mut()
+					.page_mut() = Some(self.page_mut() + 1);
+
 				self.next()
 
 			}
