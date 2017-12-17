@@ -24,7 +24,7 @@ pub struct GetFullEntry {
 
 
 
-impl<'a> Endpoint<'a> for GetFullEntry {
+impl Endpoint for GetFullEntry {
 	type Parameter = parameter::InfoGetFullEntry;
 	type ResponseType = response::info::Fullentry;
 	const URL: &'static str = "info/fullentry";
@@ -97,7 +97,7 @@ impl GetComments {
 
 
 
-impl<'a> Endpoint<'a> for GetComments {
+impl Endpoint for GetComments {
 	type Parameter = parameter::InfoGetComments;
 	type ResponseType = Vec<response::info::Comment>;
 	const URL: &'static str = "info/comments";
@@ -139,8 +139,8 @@ impl<'a> Endpoint<'a> for GetComments {
 
 
 
-impl<'a> PageableEndpoint<'a, GetComments> for GetComments {
-	fn pager(self, client: Client) -> Pager<'a, GetComments>
+impl PageableEndpoint<GetComments> for GetComments {
+	fn pager(self, client: Client) -> Pager<GetComments>
 	{
 		debug!("new pager with data: {:?}", self.data);
 		Pager::new(client, self, Some(0), Some(3))

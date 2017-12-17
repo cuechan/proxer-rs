@@ -20,9 +20,9 @@ pub mod tests;
 pub mod parameter;
 
 pub use client::Client;
-use parameter::PageableParameter;
 pub use prelude::*;
-use serde::Deserialize;
+
+use parameter::PageableParameter;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 
@@ -32,7 +32,7 @@ use std::fmt;
 
 
 /// Every struct that is an endpoint, implements this trait.
-pub trait Endpoint<'de> {
+pub trait Endpoint {
 	type Parameter: Serialize + fmt::Debug + Clone;
 	type ResponseType: std::fmt::Debug + Clone + DeserializeOwned;
 	const URL: &'static str;
@@ -51,13 +51,13 @@ pub trait Endpoint<'de> {
 
 
 
-pub trait PageableEndpoint<'de, E>
+pub trait PageableEndpoint<E>
 where
-	E: Endpoint<'de> + Clone + fmt::Debug,
-	<E as Endpoint<'de>>::Parameter: PageableParameter + Clone + fmt::Debug,
-	<E as Endpoint<'de>>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+	E: Endpoint + Clone + fmt::Debug,
+	<E as Endpoint>::Parameter: PageableParameter + Clone + fmt::Debug,
+	<E as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
 {
-	fn pager(self, client: Client) -> Pager<'de, E>;
+	fn pager(self, client: Client) -> Pager<E>;
 
 	// fn pager(_self: E, client: Client) -> Pager<'de, E> {
 // 	Pager::new(
@@ -72,31 +72,31 @@ where
 
 
 //#[derive(Debug, Clone)]
-pub struct Pager<'de, T>
+pub struct Pager<T>
 where
-	T: Endpoint<'de> + Clone + std::fmt::Debug,
-	<T as Endpoint<'de>>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
-	<T as Endpoint<'de>>::Parameter: PageableParameter + Clone + std::fmt::Debug,
+	T: Endpoint + Clone + std::fmt::Debug,
+	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+	<T as Endpoint>::Parameter: PageableParameter + Clone + std::fmt::Debug,
 {
 	client: Client,
 	shifted: usize,
 	endpoint: T,
-	data: Vec<<<T as Endpoint<'de>>::ResponseType as IntoIterator>::Item>,
+	data: Vec<<<T as Endpoint>::ResponseType as IntoIterator>::Item>,
 }
 
 
 
 
-impl<'de, T: Endpoint<'de> + Clone + std::fmt::Debug> Pager<'de, T>
+impl<T: Endpoint + Clone + std::fmt::Debug> Pager<T>
 where
-	<T as Endpoint<'de>>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
-	<T as Endpoint<'de>>::Parameter: PageableParameter + Clone + std::fmt::Debug,
+	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+	<T as Endpoint>::Parameter: PageableParameter + Clone + std::fmt::Debug,
 {
 	pub fn new(
 		client: Client,
 		mut endpoint: T,
-		mut start: Option<usize>,
-		mut limit: Option<usize>
+		start: Option<usize>,
+		limit: Option<usize>
 	) -> Self
 	{
 
@@ -140,15 +140,15 @@ where
 
 
 
-impl<'de, E> Iterator for Pager<'de, E>
+impl<E> Iterator for Pager<E>
 where
-	E: Endpoint<'de>,
+	E: Endpoint,
 	E: Clone,
 	E: std::fmt::Debug,
-	<E as Endpoint<'de>>::Parameter: PageableParameter + Clone + fmt::Debug,
-	<E as Endpoint<'de>>::ResponseType: IntoIterator,
+	<E as Endpoint>::Parameter: PageableParameter + Clone + fmt::Debug,
+	<E as Endpoint>::ResponseType: IntoIterator,
 {
-	type Item = Result<<<E as Endpoint<'de>>::ResponseType as IntoIterator>::Item, error::Error>;
+	type Item = Result<<<E as Endpoint>::ResponseType as IntoIterator>::Item, error::Error>;
 
 	fn next(&mut self) -> Option<Self::Item>
 	{

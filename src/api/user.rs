@@ -28,7 +28,7 @@ impl Userinfo {
 }
 
 
-impl<'a> Endpoint<'a> for Userinfo {
+impl Endpoint for Userinfo {
 	type Parameter = parameter::UserUserinfo;
 	type ResponseType = response::user::Userinfo;
 	const URL: &'static str = "user/userinfo";
