@@ -10,29 +10,38 @@ const ENV_KEY: &str = "PROXER_API_KEY";
 fn api_response()
 {
 	// is the api structured as we want it to be?
-	let client = Client::with_env_key(ENV_KEY).unwrap();
+	info!("creating client");
+	let client = Client::with_env_key(ENV_KEY)
+		.expect("can't read api-key from environment");
 
+
+	info!("build request");
 	let req = client
 		.api()
 		.info()
 		.get_fullentry(parameter::InfoGetFullEntry { id: 53 });
 
-
+	info!("send request");
 	let res = client.execute(req);
+	info!("request sent");
 
-	eprintln!();
 
 
 	match res
 	{
 		Err(e) => {
+			error!("error...");
+			eprintln!("response {:#?}", e);
+
 			match e
 			{
 				error::Error::Api(e) => {
+					info!("api error");
+
 					match e.error()
 					{
 						error::api::Errcode::NoApiPermissions => return,
-						_ => panic!("this error is not expected"),
+						_ => panic!("unexpected api error: {}", e),
 					}
 				}
 				error::Error::Json(e) => panic!("can't parse json: {}", e),
@@ -42,6 +51,7 @@ fn api_response()
 		}
 
 		Ok(r) => {
+			info!("Ok");
 			assert_eq!(r.medium, "animeseries");
 		}
 	}
