@@ -10,7 +10,9 @@ const ENV_KEY: &str = "PROXER_API_KEY";
 fn api_response()
 {
 	// is the api structured as we want it to be?
-	let client = Client::with_env_key(ENV_KEY).unwrap();
+	let client = Client::with_env_key(ENV_KEY)
+		.expect("can't read api-key from environment");
+
 
 	let req = client
 		.api()
