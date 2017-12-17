@@ -32,7 +32,7 @@ fn api_response()
 					match e.error()
 					{
 						error::api::Errcode::NoApiPermissions => return,
-						_ => panic!("this error is not expected"),
+						_ => panic!("this error is not expected: {}", e),
 					}
 				}
 				error::Error::Json(e) => panic!("can't parse json: {}", e),
