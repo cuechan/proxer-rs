@@ -16,10 +16,10 @@ fn api_response()
 
 
 	info!("build request");
-	let req = client
-		.api()
-		.info()
-		.get_fullentry(parameter::InfoGetFullEntry { id: 53 });
+	let req = api::info::GetFullEntry::new(
+		parameter::InfoGetFullEntry { id: 53 }
+	);
+
 
 	info!("send request");
 	let res = client.execute(req);
