@@ -1,19 +1,3 @@
-
-
-//! All request parameters are here
-//! all these structs can be serialized into an urlencoded string
-//!
-//! __b-but why n-not in different mods, anon? :(__
-//!
-//! because the api is so shitty, there is no logical distiction between the api classes.
-//! it's just a huge clusterfuck
-//!
-//! __why usize instead of i64?__
-//!
-//! when you know whats coming, why don't be prepared? (an id will never be < 0)
-
-
-
 pub trait PageableParameter {
 	fn page_mut(&mut self) -> &mut Option<usize>;
 	fn limit_mut(&mut self) -> &mut Option<usize>;
@@ -21,11 +5,11 @@ pub trait PageableParameter {
 
 
 
-
 #[derive(Serialize, Debug, Clone)]
 pub struct InfoGetFullEntry {
 	pub id: usize,
 }
+
 
 
 
