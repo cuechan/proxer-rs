@@ -19,14 +19,12 @@ pub mod client;
 pub mod tests;
 pub mod parameter;
 
-pub use client::Client;
 
+pub use client::Client;
 use parameter::PageableParameter;
 pub use prelude::*;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
-
-use serde_json::Value;
 use std::fmt;
 
 
@@ -38,12 +36,8 @@ pub trait Endpoint {
 	const URL: &'static str;
 
 
-	fn new(Client, Self::Parameter) -> Self;
-
+	fn new(Self::Parameter) -> Self;
 	fn params_mut(&mut self) -> &mut Self::Parameter;
-	fn client(&self) -> Client;
-	fn url(&self) -> String;
-	fn parse(&self, Value) -> Result<Self::ResponseType, error::Error>;
 }
 
 

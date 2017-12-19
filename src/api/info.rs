@@ -15,7 +15,6 @@ use serde_json::Value;
 
 #[derive(Debug, Clone)]
 pub struct GetFullEntry {
-	client: Client,
 	data: parameter::InfoGetFullEntry,
 }
 
@@ -30,10 +29,9 @@ impl Endpoint for GetFullEntry {
 	const URL: &'static str = "info/fullentry";
 
 
-	fn new(client: Client, vars: Self::Parameter) -> Self
+	fn new(vars: Self::Parameter) -> Self
 	{
 		Self {
-			client: client.clone(),
 			data: vars,
 		}
 	}
@@ -41,26 +39,6 @@ impl Endpoint for GetFullEntry {
 	fn params_mut(&mut self) -> &mut Self::Parameter
 	{
 		&mut self.data
-	}
-
-	fn client(&self) -> Client
-	{
-		self.client.to_owned()
-	}
-
-	fn url(&self) -> String
-	{
-		warn!("depricated url");
-		String::from("foobar")
-	}
-
-	fn parse(&self, json: Value) -> Result<Self::ResponseType, error::Error>
-	{
-		match serde_json::from_value::<Self::ResponseType>(json.clone())
-		{
-			Ok(data) => Ok(data),
-			Err(e) => Err(error::Error::Json(e)),
-		}
 	}
 }
 
@@ -73,27 +51,8 @@ impl Endpoint for GetFullEntry {
 
 #[derive(Debug, Clone)]
 pub struct GetComments {
-	client: Client,
 	data: parameter::InfoGetComments,
-	url: String,
 }
-
-
-
-
-impl GetComments {
-	// type ResponseType = response::info::Comment;
-
-	pub fn new(client: &Client, vars: parameter::InfoGetComments) -> Self
-	{
-		Self {
-			client: client.clone(),
-			data: vars,
-			url: "info/comments".to_string(),
-		}
-	}
-}
-
 
 
 
@@ -103,37 +62,16 @@ impl Endpoint for GetComments {
 	const URL: &'static str = "info/comments";
 
 
-	fn new(client: Client, vars: parameter::InfoGetComments) -> Self
+	fn new(vars: parameter::InfoGetComments) -> Self
 	{
 		Self {
-			client: client.clone(),
 			data: vars,
-			url: "info/comments".to_string(),
 		}
-	}
-
-
-	fn client(&self) -> Client
-	{
-		self.client.to_owned()
 	}
 
 	fn params_mut(&mut self) -> &mut Self::Parameter
 	{
 		&mut self.data
-	}
-
-	fn url(&self) -> String
-	{
-		self.url.to_owned()
-	}
-
-
-	fn parse(&self, json: Value) -> Result<Self::ResponseType, error::Error>
-	{
-		let res: Self::ResponseType = serde_json::from_value(json).unwrap();
-
-		Ok(res)
 	}
 }
 

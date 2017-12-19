@@ -5,6 +5,8 @@ use proxer::Client;
 use proxer::PageableEndpoint;
 use proxer::parameter;
 use std::ops::Add;
+use proxer::Endpoint;
+use proxer::api;
 
 
 fn main()
@@ -18,19 +20,27 @@ fn main()
 
 
 
+
+
+
+
+
+
 fn get_fullentry()
 {
 	let prxr = Client::with_env_key("PROXER_API_KEY").unwrap();
 
 
-	let req = prxr.api()
-		.info()
-		.get_fullentry(parameter::InfoGetFullEntry { id: 53 });
+
+	let req = proxer::api::info::GetFullEntry::new(
+		parameter::InfoGetFullEntry { id: 53 }
+	);
 
 
-	let res = prxr.execute(req);
+	let res = prxr.execute(req).unwrap();
 
-	eprintln!("{:#?}", res);
+	eprintln!("medium: {}", res.medium);
+	eprintln!("count: {}", res.count);
 }
 
 
@@ -49,16 +59,14 @@ fn get_comments()
 {
 	let prxr = Client::with_env_key("PROXER_API_KEY").unwrap();
 
-	let req = prxr.api()
-		.info()
-		.get_comments(
-			parameter::InfoGetComments {
-				id: 53,
-				p: None,
-				limit: Some(100),
-				sort: None,
-			}
-		);
+	let req = api::info::GetComments::new(
+		parameter::InfoGetComments {
+			id: 53,
+			p: None,
+			limit: Some(100),
+			sort: None,
+		}
+	);
 
 
 	let pager = req.pager(prxr);
