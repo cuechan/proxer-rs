@@ -27,7 +27,7 @@ pub struct Client {
 
 #[allow(unused)]
 impl Client {
-	/// Create a new api client
+	/// Create a new api client with a given api key
 	pub fn new(api_key: String) -> Self
 	{
 		let crates_name = env::var("CARGO_PKG_NAME").unwrap_or("unknown".to_string());
@@ -45,6 +45,8 @@ impl Client {
 	}
 
 
+
+	/// load api key from an environment variable
 	pub fn with_env_key(env_key: &str) -> Option<Client>
 	{
 		match env::var_os(env_key)
@@ -56,8 +58,8 @@ impl Client {
 
 
 
-	/// execute a request that satisfies [Request](../trait.Request.html)
-	pub fn execute<'a, T: super::Endpoint + Clone + fmt::Debug>(
+	/// execute a request that satisfies [`Endpoint`](../trait.Endpoint.html)
+	pub fn execute<T: super::Endpoint + Clone + fmt::Debug>(
 		&self,
 		mut endpoint: T,
 	) -> Result<T::ResponseType, error::Error>
