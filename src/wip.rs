@@ -3,7 +3,6 @@ extern crate pretty_env_logger;
 
 use proxer::Client;
 use proxer::PageableEndpoint;
-use proxer::parameter;
 use std::ops::Add;
 use proxer::Endpoint;
 use proxer::api;
@@ -32,13 +31,12 @@ fn get_fullentry()
 
 
 
-	let req = parameter::InfoGetFullEntry { id: 53 };
+	let req = api::info::GetFullEntry { id: 53 };
 
 
 	let res = prxr.execute(req).unwrap();
 
-	eprintln!("medium: {}", res.medium);
-	eprintln!("count: {}", res.count);
+	eprintln!("medium: {}", res.medium);;
 }
 
 
@@ -57,7 +55,7 @@ fn get_comments()
 {
 	let prxr = Client::with_env_key("PROXER_API_KEY").unwrap();
 
-	let req = parameter::InfoGetComments {
+	let req = api::info::GetComments {
 		id: 53,
 		p: None,
 		limit: Some(100),
