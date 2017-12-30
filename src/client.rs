@@ -57,7 +57,7 @@ impl Client {
 
 
 	/// execute a request that satisfies [Request](../trait.Request.html)
-	pub fn execute<'a, T: super::Endpoint + Clone + fmt::Debug>(		
+	pub fn execute<'a, T: super::Endpoint + Clone + fmt::Debug>(
 		&self,
 		mut endpoint: T,
 	) -> Result<T::ResponseType, error::Error>
