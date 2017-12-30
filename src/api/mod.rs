@@ -1,8 +1,9 @@
+
+use Client;
 use Endpoint;
 use PageableEndpoint;
-use response;
-use Client;
 use Pager;
+use response;
 
 pub mod info;
 pub mod user;

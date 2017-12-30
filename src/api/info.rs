@@ -100,7 +100,6 @@ impl Endpoint for GetComments {
 
 
 impl PageableEndpoint for GetComments {
-
 	fn pager(self, client: Client) -> Pager<GetComments>
 	{
 		debug!("new pager with data: {:?}", self);

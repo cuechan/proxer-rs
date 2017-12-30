@@ -68,25 +68,23 @@ where
 
 impl<T> Pager<T>
 where
-	T: Endpoint + PageableEndpoint ,
+	T: Endpoint + PageableEndpoint,
 	T: Clone + std::fmt::Debug,
 	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
 {
-	pub fn new(
-		client: Client,
-		mut endpoint: T,
-		start: Option<usize>,
-		limit: Option<usize>
-	) -> Self
+	pub fn new(client: Client, mut endpoint: T, start: Option<usize>, limit: Option<usize>)
+		-> Self
 	{
 
-		match (endpoint.page_mut(), start) {
+		match (endpoint.page_mut(), start)
+		{
 			(&mut None, None) => *endpoint.page_mut() = Some(0),
 			(&mut None, Some(_)) => *endpoint.page_mut() = start,
 			_ => {}
 		}
 
-		match (endpoint.limit_mut(), limit) {
+		match (endpoint.limit_mut(), limit)
+		{
 			(&mut None, None) => *endpoint.limit_mut() = Some(750),
 			(&mut None, Some(_)) => *endpoint.limit_mut() = limit,
 			_ => {}
@@ -107,11 +105,13 @@ where
 		}
 	}
 
-	fn page_mut(&mut self) -> usize {
+	fn page_mut(&mut self) -> usize
+	{
 		self.endpoint.page_mut().unwrap()
 	}
 
-	fn limit_mut(&mut self) -> usize {
+	fn limit_mut(&mut self) -> usize
+	{
 		self.endpoint.limit_mut().unwrap()
 	}
 }
