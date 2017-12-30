@@ -17,21 +17,21 @@ pub struct Userinfo {
 
 
 
-impl Endpoint for Userinfo {
-	type Parameter = parameter::UserUserinfo;
-	type ResponseType = response::user::Userinfo;
-	const URL: &'static str = "user/userinfo";
-
-
-	fn new(vars: Self::Parameter) -> Self
-	{
-		Self {
-			data: vars
-		}
-	}
-
-	fn params_mut(&mut self) -> &mut Self::Parameter
-	{
-		&mut self.data
-	}
-}
+// impl Endpoint for Userinfo {
+// 	type Parameter = parameter::UserUserinfo;
+// 	type ResponseType = response::user::Userinfo;
+// 	const URL: &'static str = "user/userinfo";
+//
+//
+// 	fn new(vars: Self::Parameter) -> Self
+// 	{
+// 		Self {
+// 			data: vars
+// 		}
+// 	}
+//
+// 	fn params_mut(&mut self) -> &mut Self::Parameter
+// 	{
+// 		&mut self.data
+// 	}
+// }

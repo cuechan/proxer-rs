@@ -21,7 +21,6 @@ pub mod parameter;
 
 
 pub use client::Client;
-use parameter::PageableParameter;
 pub use prelude::*;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
@@ -30,14 +29,9 @@ use std::fmt;
 
 
 /// Every struct that is an endpoint, implements this trait.
-pub trait Endpoint {
-	type Parameter: Serialize + fmt::Debug + Clone;
+pub trait Endpoint: Serialize {
 	type ResponseType: std::fmt::Debug + Clone + DeserializeOwned;
 	const URL: &'static str;
-
-
-	fn new(Self::Parameter) -> Self;
-	fn params_mut(&mut self) -> &mut Self::Parameter;
 }
 
 
@@ -45,22 +39,15 @@ pub trait Endpoint {
 
 
 
-pub trait PageableEndpoint<E>
+pub trait PageableEndpoint
 where
-	E: Endpoint + Clone + fmt::Debug,
-	<E as Endpoint>::Parameter: PageableParameter + Clone + fmt::Debug,
-	<E as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+	Self: Endpoint + std::marker::Sized,
+	<Self as Endpoint>::ResponseType: IntoIterator + Clone,
 {
-	fn pager(self, client: Client) -> Pager<E>;
+	fn pager(self, client: Client) -> Pager<Self>;
 
-	// fn pager(_self: E, client: Client) -> Pager<'de, E> {
-	// 	Pager::new(
-	// 		client,
-	// 		_self.clone(),
-	// 		None,
-	// 		Some(1_000)
-	// 	)
-	// }
+	fn page_mut(&mut self) -> &mut Option<usize>;
+	fn limit_mut(&mut self) -> &mut Option<usize>;
 }
 
 
@@ -68,9 +55,8 @@ where
 //#[derive(Debug, Clone)]
 pub struct Pager<T>
 where
-	T: Endpoint + Clone + std::fmt::Debug,
+	T: Endpoint,
 	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
-	<T as Endpoint>::Parameter: PageableParameter + Clone + std::fmt::Debug,
 {
 	client: Client,
 	shifted: usize,
@@ -81,10 +67,11 @@ where
 
 
 
-impl<T: Endpoint + Clone + std::fmt::Debug> Pager<T>
+impl<T> Pager<T>
 where
+	T: Endpoint + PageableEndpoint ,
+	T: Clone + std::fmt::Debug,
 	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
-	<T as Endpoint>::Parameter: PageableParameter + Clone + std::fmt::Debug,
 {
 	pub fn new(
 		client: Client,
@@ -94,22 +81,22 @@ where
 	) -> Self
 	{
 
-		match (endpoint.params_mut().page_mut(), start) {
-			(&mut None, None) => *endpoint.params_mut().page_mut() = Some(0),
-			(&mut None, Some(_)) => *endpoint.params_mut().page_mut() = start,
+		match (endpoint.page_mut(), start) {
+			(&mut None, None) => *endpoint.page_mut() = Some(0),
+			(&mut None, Some(_)) => *endpoint.page_mut() = start,
 			_ => {}
 		}
 
-		match (endpoint.params_mut().limit_mut(), limit) {
-			(&mut None, None) => *endpoint.params_mut().limit_mut() = Some(750),
-			(&mut None, Some(_)) => *endpoint.params_mut().limit_mut() = limit,
+		match (endpoint.limit_mut(), limit) {
+			(&mut None, None) => *endpoint.limit_mut() = Some(750),
+			(&mut None, Some(_)) => *endpoint.limit_mut() = limit,
 			_ => {}
 		}
 
 		debug!(
 			"initialize new pager: page: {}, limit {}",
-			endpoint.params_mut().page_mut().unwrap(),
-			endpoint.params_mut().limit_mut().unwrap(),
+			endpoint.page_mut().unwrap(),
+			endpoint.limit_mut().unwrap(),
 		);
 
 
@@ -122,11 +109,11 @@ where
 	}
 
 	fn page_mut(&mut self) -> usize {
-		self.endpoint.params_mut().page_mut().unwrap()
+		self.endpoint.page_mut().unwrap()
 	}
 
 	fn limit_mut(&mut self) -> usize {
-		self.endpoint.params_mut().limit_mut().unwrap()
+		self.endpoint.limit_mut().unwrap()
 	}
 }
 
@@ -134,15 +121,13 @@ where
 
 
 
-impl<E> Iterator for Pager<E>
+impl<T> Iterator for Pager<T>
 where
-	E: Endpoint,
-	E: Clone,
-	E: std::fmt::Debug,
-	<E as Endpoint>::Parameter: PageableParameter + Clone + fmt::Debug,
-	<E as Endpoint>::ResponseType: IntoIterator,
+	T: Endpoint,
+	T: PageableEndpoint + Clone + std::fmt::Debug,
+	<T as Endpoint>::ResponseType: IntoIterator,
 {
-	type Item = Result<<<E as Endpoint>::ResponseType as IntoIterator>::Item, error::Error>;
+	type Item = Result<<<T as Endpoint>::ResponseType as IntoIterator>::Item, error::Error>;
 
 	fn next(&mut self) -> Option<Self::Item>
 	{
@@ -181,7 +166,7 @@ where
 				debug!("filled buffer with {} entries", self.data.len());
 
 
-				*self.endpoint.params_mut().page_mut() = Some(self.page_mut() + 1);
+				*self.endpoint.page_mut() = Some(self.page_mut() + 1);
 
 				self.next()
 

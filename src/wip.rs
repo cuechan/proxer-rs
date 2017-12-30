@@ -32,9 +32,7 @@ fn get_fullentry()
 
 
 
-	let req = proxer::api::info::GetFullEntry::new(
-		parameter::InfoGetFullEntry { id: 53 }
-	);
+	let req = parameter::InfoGetFullEntry { id: 53 };
 
 
 	let res = prxr.execute(req).unwrap();
@@ -59,14 +57,12 @@ fn get_comments()
 {
 	let prxr = Client::with_env_key("PROXER_API_KEY").unwrap();
 
-	let req = api::info::GetComments::new(
-		parameter::InfoGetComments {
-			id: 53,
-			p: None,
-			limit: Some(100),
-			sort: None,
-		}
-	);
+	let req = parameter::InfoGetComments {
+		id: 53,
+		p: None,
+		limit: Some(100),
+		sort: None,
+	};
 
 
 	let pager = req.pager(prxr);

@@ -82,7 +82,7 @@ impl Client {
 		// add our headers to the request
 		http_req.headers_mut().extend(headers.iter());
 
-		match serde_urlencoded::to_string(endpoint.params_mut().clone())
+		match serde_urlencoded::to_string(endpoint.clone())
 		{
 			Ok(body) => {
 				debug!("post data: {}", body);
@@ -100,7 +100,7 @@ impl Client {
 
 
 
-		// This section needs some reqriting. maybe... later
+		// This section needs some rewriting. maybe... later
 		match response
 		{
 			Err(e) => return Err(error::Error::Http),

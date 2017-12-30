@@ -1,7 +1,12 @@
-pub trait PageableParameter {
-	fn page_mut(&mut self) -> &mut Option<usize>;
-	fn limit_mut(&mut self) -> &mut Option<usize>;
-}
+
+
+
+use Endpoint;
+use PageableEndpoint;
+use response;
+use Client;
+use Pager;
+
 
 
 
@@ -10,6 +15,11 @@ pub struct InfoGetFullEntry {
 	pub id: usize,
 }
 
+
+impl Endpoint for InfoGetFullEntry {
+	type ResponseType = response::info::Fullentry;
+	const URL: &'static str = "info/fullentry";
+}
 
 
 
@@ -62,7 +72,6 @@ pub struct InfoGetPublisher {
 
 
 
-
 #[derive(Serialize, Debug, Clone)]
 pub struct InfoGetListinfo {
 	pub id: usize,
@@ -80,16 +89,47 @@ pub struct InfoGetComments {
 	pub sort: Option<String>,
 }
 
-impl PageableParameter for InfoGetComments {
+
+
+impl Endpoint for InfoGetComments {
+	type ResponseType = Vec<response::info::Comment>;
+	const URL: &'static str = "info/comments";
+}
+
+
+
+impl PageableEndpoint for InfoGetComments {
+
+	fn pager(self, client: Client) -> Pager<InfoGetComments>
+	{
+		debug!("new pager with data: {:?}", self);
+		Pager::new(client, self, Some(0), Some(3))
+	}
+
 	fn page_mut(&mut self) -> &mut Option<usize>
 	{
 		&mut self.p
 	}
+
 	fn limit_mut(&mut self) -> &mut Option<usize>
 	{
 		&mut self.limit
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
