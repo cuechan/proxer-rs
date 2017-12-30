@@ -36,7 +36,7 @@ fn get_fullentry()
 
 	let res = prxr.execute(req).unwrap();
 
-	eprintln!("medium: {}", res.medium);;
+	eprintln!("medium: {}", res.medium);
 }
 
 
