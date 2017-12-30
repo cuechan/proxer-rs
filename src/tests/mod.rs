@@ -16,9 +16,7 @@ fn api_response()
 
 
 	info!("build request");
-	let req = api::info::GetFullEntry::new(
-		parameter::InfoGetFullEntry { id: 53 }
-	);
+	let req = api::info::GetFullEntry { id: 53 };
 
 
 	info!("send request");
