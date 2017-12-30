@@ -13,28 +13,26 @@ Making requests is fairly simple:
 
 ```rust
 let prxr = proxer::Client::new("yourapikey");
-// or load the api-key from an environment variable
+// ...or load the api-key from an environment variable
 let prxr = proxer::Client::with_env_key("PROXER_API_KEY");
 
 
-let req = client.api().info().get_fullentry(
-  // this struct is equivalent to the documented parameters
-  // for this endpoint. See http://proxer.me/wiki/Proxer_API/v1/Info#Get_Full_Entry
-  parameter::InfoGetFullEntry {
-    id: 53
-  }
-);
+// everything is strong type. You can't pass wrong parameters
+let req = api::info::GetFullEntry { id: 53 };
 
 
-// send the request
-match req.send() {
+// execute the request
+let res = prxr.execute(req).unwrap();
+
+// check the response
+match res {
   Ok(data) => println!("{:#?}", data),
   Err(e) => {
     match e {
-      error::Error::Api(k) => panic!("API error: {}", k),
-      error::Error::Json(k) => panic!("something is wrong: ", k),
-        error::Error::Http => panic!("interwebs error"),
-        error::Error::Unknown => panic!("i dont know what happened"),
+      error::Error::Api(k)    => panic!("API error: {}", k),
+      error::Error::Json(k)   => panic!("something is wrong: ", k),
+      error::Error::Http    => panic!("interwebs error"),
+      error::Error::Unknown => panic!("i dont know what happened"),
     }
   }
 }
@@ -48,20 +46,27 @@ It tries to be a 1:1 wrapper to the api while providing some nice tweaks like `I
 
 
 ```rust
-let req = client.api().info().get_comments(
-  parameter::InfoGetComments {
-    id: 53,
-    p: None,
-    limit: None,
-    sort: None
-  }
-);
+let prxr = Client::with_env_key("PROXER_API_KEY").unwrap();
+
+let req = api::info::GetComments {
+	id: 53,
+	p: None,
+	limit: Some(100),
+	sort: None,
+};
 
 
-for comment in req.pager() {
-  // Now, new comments are automagically fetched when a page end is reached
+// create a pager(`Iterator`) for the request
+let pager = req.pager(prxr);
 
-  println!("user:   {}", comment.unwrap().username);
-  println!("rating: {}", comment.unwrap().rating);
+
+// iterate over the list
+for comment in pager {
+  // Now, new comments are automagically fetched when the end of a page is reached
+
+	// there is still some error handling
+	let comment = comment.expect("something went wrong");
+
+  println!("{}: {}", comment.username, comment.rating);
 }
 ```
