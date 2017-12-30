@@ -3,8 +3,6 @@ use PageableEndpoint;
 use Pager;
 use client::Client;
 use response;
-use serde_json;
-use serde_json::Value;
 
 
 
@@ -16,7 +14,6 @@ pub struct GetFullEntry {
 	pub id: usize,
 }
 
-
 impl Endpoint for GetFullEntry {
 	type ResponseType = response::info::Fullentry;
 	const URL: &'static str = "info/fullentry";
@@ -27,6 +24,11 @@ impl Endpoint for GetFullEntry {
 #[derive(Serialize, Debug, Clone)]
 pub struct GetEntry {
 	pub id: usize,
+}
+
+impl Endpoint for GetEntry {
+	type ResponseType = response::info::GetEntry;
+	const URL: &'static str = "info/entry";
 }
 
 

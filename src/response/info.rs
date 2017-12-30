@@ -65,7 +65,7 @@ pub struct Fullentry {
 
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct Info {
+pub struct GetEntry {
 	pub id: String,
 	pub name: String,
 	pub genre: String,
