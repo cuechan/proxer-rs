@@ -1,10 +1,14 @@
+use Endpoint;
+use PageableEndpoint;
+use response;
+use Client;
+use Pager;
+
 pub mod info;
 pub mod user;
 pub mod list;
 
-use Endpoint;
-use client::Client;
-use parameter;
+
 
 
 /// Shortcuts to the endpoints
@@ -20,3 +24,7 @@ impl Client {
 pub struct Api {
 	client: Client,
 }
+
+
+
+// Todo: move dat shit away
