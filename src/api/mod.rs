@@ -1,8 +1,4 @@
 use Client;
-use Endpoint;
-use PageableEndpoint;
-use Pager;
-use response;
 
 pub mod info;
 pub mod user;
@@ -21,6 +17,7 @@ impl Client {
 }
 
 
+#[allow(dead_code)]
 pub struct Api {
 	client: Client,
 }

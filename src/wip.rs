@@ -2,7 +2,6 @@ extern crate proxer;
 extern crate pretty_env_logger;
 
 use proxer::Client;
-use proxer::Endpoint;
 use proxer::PageableEndpoint;
 use proxer::api;
 use std::ops::Add;
