@@ -135,11 +135,11 @@ pub struct Tag {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Name {
-	id: String,
-	eid: String,
+	pub id: String,
+	pub eid: String,
 	#[serde(rename = "type")]
-	type_: String,
-	name: String,
+	pub type_: String,
+	pub name: String,
 }
 
 
@@ -171,7 +171,7 @@ pub struct Comment {
 	pub positive: SI,
 	pub timestamp: SI, //Todo: use chrono here
 	pub username: String,
-	pub uid: String,
+	pub uid: SI,
 	pub avatar: String,
 }
 
