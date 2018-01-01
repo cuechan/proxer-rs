@@ -135,8 +135,8 @@ pub struct Tag {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Name {
-	pub id: String,
-	pub eid: String,
+	pub id: SI,
+	pub eid: SI,
 	#[serde(rename = "type")]
 	pub type_: String,
 	pub name: String,
