@@ -16,6 +16,7 @@ pub struct GetFullEntry {
 
 impl Endpoint for GetFullEntry {
 	type ResponseType = response::info::Fullentry;
+	#[doc(hidden)]
 	const URL: &'static str = "info/fullentry";
 }
 
@@ -28,6 +29,7 @@ pub struct GetEntry {
 
 impl Endpoint for GetEntry {
 	type ResponseType = response::info::GetEntry;
+	#[doc(hidden)]
 	const URL: &'static str = "info/entry";
 }
 
@@ -96,6 +98,7 @@ pub struct GetComments {
 
 impl Endpoint for GetComments {
 	type ResponseType = Vec<response::info::Comment>;
+	#[doc(hidden)]
 	const URL: &'static str = "info/comments";
 }
 
