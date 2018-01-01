@@ -1,26 +1,13 @@
 use Client;
 
 pub mod info;
+#[doc(hidden)]
 pub mod user;
+#[doc(hidden)]
 pub mod list;
 
 
 
-
-/// Shortcuts to the endpoints
-
-impl Client {
-	pub fn api(&self) -> Api
-	{
-		Api { client: self.clone() }
-	}
-}
-
-
-#[allow(dead_code)]
-pub struct Api {
-	client: Client,
-}
 
 
 
