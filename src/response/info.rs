@@ -1,19 +1,7 @@
 use serde_json::Value;
 use std::fmt;
-
-/// `S`ring/`I`nteger
-/// a temporary type for strings that are integers
-/// if a field with an integer as string is used, just use `.into()`
-
-/// `S`ring/`I`nteger
-/// a temporary type for strings that are integers
-/// if a field with an integer as string is used, just use `.into()`
-#[derive(Debug, Clone, Deserialize)]
-#[serde(untagged)]
-pub enum SI {
-	I(i64),
-	S(String),
-}
+use super::SI;
+use super::Kat;
 
 
 impl From<SI> for i64 {
@@ -194,15 +182,6 @@ pub struct Userinfo {
 	pub points_info: i64,
 	pub points_forum: i64,
 	pub points_misc: i64,
-}
-
-
-
-
-#[derive(Debug, Clone, Deserialize)]
-pub enum Kat {
-	Anime,
-	Manga,
 }
 
 
