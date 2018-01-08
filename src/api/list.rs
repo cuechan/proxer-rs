@@ -28,10 +28,10 @@ impl Endpoint for GetEntryList {
 impl PageableEndpoint for GetEntryList {
 	/// Default pager:
 	///
-	/// ```
+	/// ```ignore
 	/// p     = 0
 	/// limit = 3500
-	///```
+	/// ```
 
 	fn pager(self, client: Client) -> Pager<Self>
 	{
