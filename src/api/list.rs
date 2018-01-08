@@ -1,27 +1,69 @@
+use Endpoint;
+use PageableEndpoint;
+use response::list as response;
+use Pager;
+use Client;
+
+
 #[derive(Serialize, Debug, Clone)]
-pub struct GetList {
+pub struct GetEntryList {
 	pub kat: Option<String>,
 	pub medium: Option<String>,
 	pub is_h: Option<String>,
 	pub start: Option<String>,
 	pub sort: Option<String>,
 	pub sort_type: Option<String>,
-	pub p: Option<i64>,
-	pub limit: Option<i64>,
+	pub p: Option<usize>,
+	pub limit: Option<usize>,
 }
 
 
-impl Iterator for GetList {
-	type Item = Self;
+impl Endpoint for GetEntryList {
+	type ResponseType = Vec<response::EntryList>;
+	#[doc(hidden)]
+	const URL: &'static str = "list/entrylist";
+}
 
-	fn next(&mut self) -> Option<Self::Item>
+
+impl PageableEndpoint for GetEntryList {
+	/// Default pager:
+	///
+	/// ```
+	/// p     = 0
+	/// limit = 3500
+	///```
+
+	fn pager(self, client: Client) -> Pager<Self>
 	{
-		self.p = match self.p
-		{
-			Some(p) => Some(p + 1),
-			None => Some(0),
-		};
+		debug!("new pager with data: {:?}", self);
+		Pager::new(client, self, Some(0), Some(3500))
+	}
 
-		Some(self.clone())
+	fn page_mut(&mut self) -> &mut Option<usize>
+	{
+		&mut self.p
+	}
+
+	fn limit_mut(&mut self) -> &mut Option<usize>
+	{
+		&mut self.limit
+	}
+}
+
+
+
+impl GetEntryList {
+	/// Creates an instance with everything `None`
+	pub fn with_default() -> Self {
+		Self {
+			is_h: None,
+			kat: None,
+			medium: None,
+			limit: None,
+			p: None,
+			sort_type: None,
+			sort: None,
+			start: None,
+		}
 	}
 }
