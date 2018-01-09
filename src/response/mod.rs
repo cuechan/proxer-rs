@@ -28,7 +28,7 @@ pub enum Kat {
 
 #[derive(Debug, Clone, Deserialize)]
 pub enum Medium {
-	#[serde(rename = "animerseries")]
+	#[serde(rename = "animeseries")]
 	AnimeSeries,
 	#[serde(rename = "movie")]
 	Movie,
