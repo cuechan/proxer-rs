@@ -113,6 +113,10 @@ where
 	{
 		self.endpoint.limit_mut().unwrap()
 	}
+
+	fn next_page(&mut self) {
+		*self.endpoint.page_mut() = Some(self.page_mut() + 1);
+	}
 }
 
 
@@ -153,21 +157,25 @@ where
 
 
 				debug!("fetching new data");
-				let res = self.client.execute(self.endpoint.clone()).unwrap();
+				let res = self.client
+					.execute(self.endpoint.clone());
 
+				self.next_page();
 
+				
+				match res {
+					Ok(res) => {
+						for var in res.into_iter() {
+							self.data.push(var);
+						}
+						debug!("filled buffer with {} entries", self.data.len());
 
-				for var in res.into_iter() {
-					self.data.push(var);
+						self.next()
+					},
+					Err(e) => {
+						Some(Err(e))
+					}
 				}
-
-				debug!("filled buffer with {} entries", self.data.len());
-
-
-				*self.endpoint.page_mut() = Some(self.page_mut() + 1);
-
-				self.next()
-
 			}
 		}
 	}
