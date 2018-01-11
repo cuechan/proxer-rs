@@ -5,7 +5,7 @@ use super::State;
 use super::Season;
 
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Hash)]
 pub struct EntryList {
 	pub id: SI,
 	pub name: String,

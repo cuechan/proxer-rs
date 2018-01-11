@@ -1,3 +1,5 @@
+use std::fmt;
+
 pub mod info;
 pub mod user;
 pub mod list;
@@ -11,7 +13,7 @@ pub mod list;
 /// `S`ring/`I`nteger
 /// a temporary type for strings that are integers
 /// if a field with an integer as string is used, just use `.into()`
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Hash)]
 #[serde(untagged)]
 pub enum SI {
 	I(i64),
@@ -19,14 +21,83 @@ pub enum SI {
 }
 
 
-#[derive(Debug, Clone, Deserialize)]
+
+impl Into<String> for SI {
+	fn into(self) -> String
+	{
+		match self
+		{
+			SI::I(i) => i.to_string(),
+			SI::S(s) => s,
+		}
+	}
+}
+
+
+
+impl From<SI> for u64 {
+	fn from(si: SI) -> Self
+	{
+		match si
+		{
+			SI::I(i) => i as u64,
+			SI::S(s) => s.parse().unwrap(),
+		}
+	}
+}
+
+
+impl From<SI> for u32 {
+	fn from(si: SI) -> Self
+	{
+		match si
+		{
+			SI::I(i) => i as u32,
+			SI::S(s) => s.parse().unwrap(),
+		}
+	}
+}
+
+
+impl From<SI> for i64 {
+	fn from(si: SI) -> Self
+	{
+		match si
+		{
+			SI::I(i) => i as Self,
+			SI::S(s) => s.parse().unwrap(),
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+impl fmt::Display for SI {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
+	{
+		let x: String = self.to_owned().into();
+		write!(f, "{}", x)
+	}
+}
+
+
+
+
+
+#[derive(Debug, Clone, Deserialize, Hash)]
 pub enum Kat {
 	Anime,
 	Manga,
 }
 
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Hash)]
 pub enum Medium {
 	#[serde(rename = "animeseries")]
 	AnimeSeries,
@@ -47,7 +118,7 @@ pub enum Medium {
 }
 
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Hash)]
 pub enum State {
 	#[serde(rename = "0")]
 	PreAiring,
@@ -61,7 +132,7 @@ pub enum State {
 	NoSub,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Hash)]
 pub enum Season {
 	#[serde(rename = "0")]
 	Unknown,

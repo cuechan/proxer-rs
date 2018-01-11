@@ -4,33 +4,6 @@ use super::SI;
 use super::Kat;
 
 
-impl From<SI> for i64 {
-	fn from(si: SI) -> Self
-	{
-		match si
-		{
-			SI::I(i) => i,
-			SI::S(s) => s.parse::<i64>().unwrap(),
-		}
-	}
-}
-
-
-
-impl fmt::Display for SI {
-	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
-	{
-		write!(f, "{}", i64::from(self.to_owned()))
-	}
-}
-
-
-
-
-
-
-
-
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Fullentry {
