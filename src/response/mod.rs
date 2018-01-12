@@ -1,89 +1,40 @@
-use std::fmt;
-
 pub mod info;
 pub mod user;
 pub mod list;
 
+use std::fmt;
+use std::marker::PhantomData;
 
-
-/// `S`ring/`I`nteger
-/// a temporary type for strings that are integers
-/// if a field with an integer as string is used, just use `.into()`
-
-/// `S`ring/`I`nteger
-/// a temporary type for strings that are integers
-/// if a field with an integer as string is used, just use `.into()`
-#[derive(Debug, Clone, Deserialize, Hash)]
-#[serde(untagged)]
-pub enum SI {
-	I(i64),
-	S(String),
-}
+use serde::de::{self, Deserializer, Visitor, Unexpected};
 
 
 
-impl Into<String> for SI {
-	fn into(self) -> String
-	{
-		match self
-		{
-			SI::I(i) => i.to_string(),
-			SI::S(s) => s,
+
+pub fn stringly_int<'de, D>(deserializer: D) -> Result<i64, D::Error>
+where
+    D: Deserializer<'de>
+{
+
+	struct IntVisitor(PhantomData<i64>);
+
+
+	impl<'a> Visitor<'a> for IntVisitor {
+		type Value = i64;
+
+		fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+			formatter.write_str("\"int\"")
+		}
+
+
+		fn visit_str<E: de::Error>(self, v: &str) -> Result<Self::Value, E> {
+			match v.parse::<i64>() {
+				Ok(int) => Ok(int),
+				Err(_) => Err(de::Error::invalid_value(Unexpected::Str(v), &self))
+			}
 		}
 	}
-}
 
-
-
-impl From<SI> for u64 {
-	fn from(si: SI) -> Self
-	{
-		match si
-		{
-			SI::I(i) => i as u64,
-			SI::S(s) => s.parse().unwrap(),
-		}
-	}
-}
-
-
-impl From<SI> for u32 {
-	fn from(si: SI) -> Self
-	{
-		match si
-		{
-			SI::I(i) => i as u32,
-			SI::S(s) => s.parse().unwrap(),
-		}
-	}
-}
-
-
-impl From<SI> for i64 {
-	fn from(si: SI) -> Self
-	{
-		match si
-		{
-			SI::I(i) => i as Self,
-			SI::S(s) => s.parse().unwrap(),
-		}
-	}
-}
-
-
-
-
-
-
-
-
-
-impl fmt::Display for SI {
-	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
-	{
-		let x: String = self.to_owned().into();
-		write!(f, "{}", x)
-	}
+	deserializer.deserialize_any(IntVisitor(PhantomData))
 }
 
 

@@ -1,14 +1,13 @@
 use serde_json::Value;
-use std::fmt;
-use super::SI;
 use super::Kat;
+use super::stringly_int;
 
 
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Fullentry {
-	//#[serde(deserialize_with = "string_as_i64")]
-	pub id: SI,
+	#[serde(deserialize_with = "stringly_int")]
+	pub id: i64,
 	pub names: Vec<Name>,
 	pub genre: String,
 	pub fsk: String,
@@ -45,16 +44,22 @@ pub struct GetEntry {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct UserList {
+	#[serde(deserialize_with = "stringly_int")]
 	pub id: i64,
 	pub name: String,
 	pub description: String,
 	pub genre: Vec<String>,
 	pub fsk: Vec<String>,
 	pub medium: String,
+	#[serde(deserialize_with = "stringly_int")]
 	pub count: i64,
+	#[serde(deserialize_with = "stringly_int")]
 	pub state: i64,
+	#[serde(deserialize_with = "stringly_int")]
 	pub rate_sum: i64,
+	#[serde(deserialize_with = "stringly_int")]
 	pub rate_count: i64,
+	#[serde(deserialize_with = "stringly_int")]
 	pub clicks: i64,
 	pub kat: Kat,
 	pub license: License,
@@ -83,9 +88,10 @@ pub enum RateFlag {
 #[derive(Debug, Clone, Deserialize)]
 pub struct Tag {
 	pub info_id: Option<i64>,
-	pub id: SI,
-	#[serde(rename = "tid")]
-	pub tag_id: SI,
+	#[serde(deserialize_with = "stringly_int")]
+	pub id: i64,
+	#[serde(rename = "tid", deserialize_with = "stringly_int")]
+	pub tag_id: i64,
 	pub timestamp: String,
 	pub rate_flag: RateFlag,
 	pub spoiler_flag: SpoilerFlag,
@@ -96,8 +102,10 @@ pub struct Tag {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Name {
-	pub id: SI,
-	pub eid: SI,
+	#[serde(deserialize_with = "stringly_int")]
+	pub id: i64,
+	#[serde(deserialize_with = "stringly_int")]
+	pub eid: i64,
 	#[serde(rename = "type")]
 	pub type_: String,
 	pub name: String,
@@ -119,20 +127,26 @@ pub enum WatchState {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Comment {
-	pub id: SI,
-	#[serde(rename = "tid")]
-	pub info_id: SI,
+	#[serde(deserialize_with = "stringly_int")]
+	pub id: i64,
+	#[serde(rename = "tid", deserialize_with = "stringly_int")]
+	pub info_id: i64,
 	#[serde(rename = "type")]
 	pub comment_type: String, // i have no idea what this is
 	pub state: WatchState,
 	pub data: String,
 	pub comment: String,
-	pub rating: SI,
-	pub episode: SI,
-	pub positive: SI,
-	pub timestamp: SI, //Todo: use chrono here
+	#[serde(deserialize_with = "stringly_int")]
+	pub rating: i64,
+	#[serde(deserialize_with = "stringly_int")]
+	pub episode: i64,
+	#[serde(deserialize_with = "stringly_int")]
+	pub positive: i64,
+	#[serde(deserialize_with = "stringly_int")]
+	pub timestamp: i64, //Todo: use chrono here
 	pub username: String,
-	pub uid: SI,
+	#[serde(deserialize_with = "stringly_int")]
+	pub uid: i64,
 	pub avatar: String,
 }
 
@@ -143,17 +157,25 @@ pub struct Comment {
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Userinfo {
+	#[serde(deserialize_with = "stringly_int")]
 	pub uid: i64,
 	pub username: String,
 	pub avatar: String, // use some sort of uri type here
 	pub status: String,
 	// status_time is sometimes a negative number. using i64
+	#[serde(deserialize_with = "stringly_int")]
 	pub status_time: i64,
+	#[serde(deserialize_with = "stringly_int")]
 	pub points_upload: i64,
+	#[serde(deserialize_with = "stringly_int")]
 	pub points_anime: i64,
+	#[serde(deserialize_with = "stringly_int")]
 	pub points_manga: i64,
+	#[serde(deserialize_with = "stringly_int")]
 	pub points_info: i64,
+	#[serde(deserialize_with = "stringly_int")]
 	pub points_forum: i64,
+	#[serde(deserialize_with = "stringly_int")]
 	pub points_misc: i64,
 }
 
