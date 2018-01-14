@@ -1,30 +1,29 @@
 [package]
-name = "proxer"
-version = "0.3.1"
-authors = ["Paul Maruhn <paulmaruhn@gmail.com>"]
-
-description = "Access the ProxerMe API with Rust"
+authors       = ["Paul Maruhn <paulmaruhn@gmail.com>"]
+categories    = ["api-bindings"]
+description   = "Access the ProxerMe API with Rust"
 documentation = "https://docs.rs/proxer"
-readme = "README.md"
-keywords = ["proxer", "api", "interwebs"]
-categories = ["api-bindings"]
-license = "MIT"
+homepage      = "https://0x000.net/proxer-rs"
+keywords      = ["proxer", "api", "interwebs"]
+license       = "MIT"
+name          = "proxer"
+readme        = "README.md"
+repository    = "https://github.com/cuechan/proxer-rs"
+version       = "0.3.1"
 
 [badges]
-travis-ci = { repository = "cuechan/proxer-rs", branch = "master" }
 maintenance = { status = "actively-developed" }
-
-
+travis-ci   = { repository = "cuechan/proxer-rs", branch = "master" }
 
 [dependencies]
-chrono = "0.4.0"
-futures = "0.1.14"
-hyper = "0.11.8"
-log = "0.3.8"
+chrono            = "0.4.0"
+futures           = "0.1.14"
+hyper             = "0.11.8"
+log               = "0.3.8"
 pretty_env_logger = "0.1.1"
-reqwest = "0.8.1"
-serde = "1.0.8"
-serde_derive = "1.0.10"
-serde_json = "1.0.2"
-serde_urlencoded = "0.5.1"
-void = "1.0.2"
+reqwest           = "0.8.1"
+serde             = "1.0.8"
+serde_derive      = "1.0.10"
+serde_json        = "1.0.2"
+serde_urlencoded  = "0.5.1"
+void              = "1.0.2"
