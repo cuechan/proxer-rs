@@ -39,6 +39,47 @@ where
 
 
 
+pub fn stringly_array_spaces<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where
+    D: Deserializer<'de>
+{
+
+	struct IntVisitor(PhantomData<Vec<String>>);
+
+
+	impl<'a> Visitor<'a> for IntVisitor {
+		type Value = Vec<String>;
+
+		fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+			formatter.write_str("\"string\"")
+		}
+
+
+		fn visit_str<E: de::Error>(self, v: &str) -> Result<Self::Value, E> {
+
+			let mut list: Vec<String> = Vec::new();
+
+			// for item in v.to_string().split_whitespace() {
+			// 	list.push(item.to_string());
+			// }
+
+
+			v.to_string()
+				.split_whitespace()
+				.for_each(|x| list.push(x.to_string()));
+
+
+
+			Ok(list)
+			// Err(_) => Err(de::Error::invalid_value(Unexpected::Str(v), &self))
+		}
+	}
+
+	deserializer.deserialize_any(IntVisitor(PhantomData))
+}
+
+
+
 
 
 #[derive(Debug, Clone, Deserialize, Hash)]

@@ -1,6 +1,7 @@
 use serde_json::Value;
 use super::Kat;
 use super::stringly_int;
+use super::stringly_array_spaces;
 
 
 
@@ -9,8 +10,10 @@ pub struct Fullentry {
 	#[serde(deserialize_with = "stringly_int")]
 	pub id: i64,
 	pub names: Vec<Name>,
-	pub genre: String,
-	pub fsk: String,
+	#[serde(deserialize_with = "stringly_array_spaces")]
+	pub genre: Vec<String>,
+	#[serde(deserialize_with = "stringly_array_spaces")]
+	pub fsk: Vec<String>,
 	pub description: String,
 	pub medium: String,
 	pub count: String,
@@ -28,8 +31,10 @@ pub struct Fullentry {
 pub struct GetEntry {
 	pub id: String,
 	pub name: String,
-	pub genre: String,
-	pub fsk: String,
+	#[serde(deserialize_with = "stringly_array_spaces")]
+	pub genre: Vec<String>,
+	#[serde(deserialize_with = "stringly_array_spaces")]
+	pub fsk: Vec<String>,
 	pub description: String,
 	pub medium: String,
 	pub count: String,
@@ -48,7 +53,9 @@ pub struct UserList {
 	pub id: i64,
 	pub name: String,
 	pub description: String,
+	#[serde(deserialize_with = "stringly_array_spaces")]
 	pub genre: Vec<String>,
+	#[serde(deserialize_with = "stringly_array_spaces")]
 	pub fsk: Vec<String>,
 	pub medium: String,
 	#[serde(deserialize_with = "stringly_int")]

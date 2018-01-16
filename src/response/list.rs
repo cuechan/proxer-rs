@@ -2,6 +2,7 @@ use super::Medium;
 use super::State;
 use super::Season;
 use super::stringly_int;
+use super::stringly_array_spaces;
 
 
 
@@ -11,7 +12,8 @@ pub struct EntryList {
 	#[serde(deserialize_with = "stringly_int")]
 	pub id: i64,
 	pub name: String,
-	pub genre: String,
+	#[serde(deserialize_with = "stringly_array_spaces")]
+	pub genre: Vec<String>,
 	pub medium: Medium,
 	#[serde(deserialize_with = "stringly_int")]
 	pub count: i64,
