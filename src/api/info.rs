@@ -21,6 +21,15 @@ impl Endpoint for GetFullEntry {
 }
 
 
+impl GetFullEntry {
+	pub fn with_default(id: usize) -> Self {
+		Self {
+			id: id as usize
+		}
+	}
+}
+
+
 
 #[derive(Serialize, Debug, Clone)]
 pub struct GetEntry {
@@ -32,6 +41,15 @@ impl Endpoint for GetEntry {
 	#[doc(hidden)]
 	const URL: &'static str = "info/entry";
 }
+
+impl GetEntry {
+	pub fn with_default(id: usize) -> Self {
+		Self {
+			id: id as usize
+		}
+	}
+}
+
 
 
 #[derive(Serialize, Debug, Clone)]
