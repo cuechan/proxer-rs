@@ -71,3 +71,8 @@ for comment in pager {
 	println!("{}: {}", comment.username, comment.rating);
 }
 ```
+
+
+# Dependencies
+
+![Dependency graph](./dependencies.png)
