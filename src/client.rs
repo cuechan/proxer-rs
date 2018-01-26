@@ -6,6 +6,9 @@ use serde_urlencoded;
 use std::env;
 use std::fmt;
 use std::io::Read;
+use Endpoint;
+use PageableEndpoint;
+use Pager;
 
 
 
@@ -125,6 +128,16 @@ impl Client {
 				}
 			}
 		}
+	}
+
+
+	pub fn pager<T>(self, mut endpoint: T) -> Pager<T>
+	where
+		T: Endpoint + PageableEndpoint,
+		T: Clone + fmt::Debug,
+		<T as Endpoint>::ResponseType: IntoIterator + Clone + fmt::Debug,
+	{
+		Pager::new(self, endpoint, None, None)
 	}
 }
 
