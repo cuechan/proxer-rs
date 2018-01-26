@@ -11,7 +11,10 @@ fn api_response()
 {
 	// is the api structured as we want it to be?
 	info!("creating client");
-	let mut client = Client::with_env_key(ENV_KEY).expect("can't read api-key from environment");
+	let mut client = match Client::with_env_key(ENV_KEY) {
+		None => return,
+		Some(client) => client
+	};
 
 
 	info!("build request");
