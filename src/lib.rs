@@ -23,6 +23,7 @@ pub use client::Client;
 pub use prelude::*;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
+use std::fmt;
 
 
 
@@ -68,13 +69,12 @@ where
 impl<T> Pager<T>
 where
 	T: Endpoint + PageableEndpoint,
-	T: Clone + std::fmt::Debug,
-	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+	T: Clone + fmt::Debug,
+	<T as Endpoint>::ResponseType: IntoIterator + Clone + fmt::Debug,
 {
 	pub fn new(client: Client, mut endpoint: T, start: Option<usize>, limit: Option<usize>)
 		-> Self
 	{
-
 		match (endpoint.page_mut(), start)
 		{
 			(&mut None, None) => *endpoint.page_mut() = Some(0),
@@ -162,7 +162,7 @@ where
 
 				self.next_page();
 
-				
+
 				match res {
 					Ok(res) => {
 						for var in res.into_iter() {
