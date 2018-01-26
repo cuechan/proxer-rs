@@ -9,6 +9,10 @@ use std::io::Read;
 use Endpoint;
 use PageableEndpoint;
 use Pager;
+use std::time;
+use std::thread;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 
 
@@ -17,12 +21,37 @@ use Pager;
 const API_BASE_PATH: &str = "http://proxer.me/api/v1/";
 
 
+
+
+#[derive(Debug, Clone)]
+pub struct ClientConfig {
+	pub cooldown: time::Duration,
+}
+
+
+impl Default for ClientConfig {
+
+	/// Default ClientConfig:
+	/// - No cooldown
+
+	fn default() -> Self {
+		Self {
+			cooldown: time::Duration::new(0, 0),
+		}
+	}
+}
+
+
+
+
 /// Client that holds the api key and sends requests
 #[derive(Debug, Clone)]
 pub struct Client {
 	api_key: String,
 	base_uri: String,
 	user_agent: String,
+	config: ClientConfig,
+	last_request: Arc<Mutex<Option<time::Instant>>>,
 }
 
 
@@ -36,14 +65,18 @@ impl Client {
 		let crates_name = env::var("CARGO_PKG_NAME").unwrap_or("unknown".to_string());
 
 		let crates_version = &env::var("CARGO_PKG_VERSION").unwrap_or("unknown".to_string());
-
-
 		let ua = format!("libproxer-rust({}/v{})", crates_name, crates_version);
+
+
+
+
 
 		Self {
 			api_key: api_key,
 			base_uri: API_BASE_PATH.to_string(),
 			user_agent: ua,
+			config: ClientConfig::default(),
+			last_request: Arc::new(Mutex::new(None))
 		}
 	}
 
@@ -61,11 +94,17 @@ impl Client {
 
 
 
+	pub fn cooldown_time(&mut self, time: time::Duration) {
+		self.config.cooldown = time;
+	}
+
+
+
+
 	/// execute a request that satisfies [`Endpoint`](../trait.Endpoint.html)
-	pub fn execute<T: super::Endpoint + Clone + fmt::Debug>(
-		&self,
-		mut endpoint: T,
-	) -> Result<T::ResponseType, error::Error>
+	pub fn execute<T>(&mut self, mut endpoint: T) -> Result<T::ResponseType, error::Error>
+	where
+		T: super::Endpoint + Clone + fmt::Debug
 	{
 
 		let uristring = self.base_uri.to_string() + T::URL;
@@ -97,12 +136,16 @@ impl Client {
 		}
 
 
+		debug!("creating reqwest client");
 		let client = reqwest::Client::new();
 
+
+		self.waiting_for_cooldown();
+		debug!("sending request");
+
 		let response = client.execute(http_req);
-
-
-
+		debug!("response received");
+		self.reset_cooldown();
 
 
 		// This section needs some rewriting. maybe... later
@@ -129,6 +172,43 @@ impl Client {
 			}
 		}
 	}
+
+
+
+	fn remaining_cooldown_time(&self) -> time::Duration {
+		match *self.last_request.lock().unwrap() {
+			None => self.config.cooldown,
+			Some(time) => {
+				time.elapsed().clone()
+			}
+		}
+	}
+
+
+	fn reset_cooldown(&mut self) {
+		*self.last_request.lock().unwrap() = Some(time::Instant::now());
+	}
+
+
+	// vlocking till we can create a new request
+	fn waiting_for_cooldown(&mut self) {
+		let conf_cooldown = self.config.cooldown;
+		let since_last = self.remaining_cooldown_time();
+
+		debug!("configurated cooldown {:2}.{}s", conf_cooldown.as_secs(), conf_cooldown.subsec_nanos());
+		debug!("last request {:2}.{}s ago", since_last.as_secs(), since_last.subsec_nanos());
+
+		if since_last >= conf_cooldown {
+			return
+		}
+
+		let wait = self.config.cooldown - self.remaining_cooldown_time();
+		debug!("waiting for cooldown: {:2}.{}s", wait.as_secs(), wait.subsec_nanos());
+
+		thread::sleep(wait);
+	}
+
+
 
 
 	pub fn pager<T>(self, mut endpoint: T) -> Pager<T>
