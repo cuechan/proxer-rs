@@ -42,6 +42,7 @@ pub trait PageableEndpoint
 where
 	Self: Endpoint + std::marker::Sized,
 	<Self as Endpoint>::ResponseType: IntoIterator + Clone,
+	<<Self as Endpoint>::ResponseType as std::iter::IntoIterator>::Item: Clone + fmt::Debug,
 {
 	fn pager(self, client: Client) -> Pager<Self>;
 
@@ -51,11 +52,12 @@ where
 
 
 
-//#[derive(Debug, Clone)]
+#[derive(Clone, Debug)]
 pub struct Pager<T>
 where
 	T: Endpoint,
 	<T as Endpoint>::ResponseType: IntoIterator + Clone + std::fmt::Debug,
+	<<T as Endpoint>::ResponseType as std::iter::IntoIterator>::Item: Clone + fmt::Debug,
 {
 	client: Client,
 	shifted: usize,
@@ -71,6 +73,7 @@ where
 	T: Endpoint + PageableEndpoint,
 	T: Clone + fmt::Debug,
 	<T as Endpoint>::ResponseType: IntoIterator + Clone + fmt::Debug,
+	<<T as Endpoint>::ResponseType as std::iter::IntoIterator>::Item: Clone + fmt::Debug,
 {
 	pub fn new(client: Client, mut endpoint: T, start: Option<usize>, limit: Option<usize>)
 		-> Self
@@ -128,6 +131,7 @@ where
 	T: Endpoint,
 	T: PageableEndpoint + Clone + std::fmt::Debug,
 	<T as Endpoint>::ResponseType: IntoIterator,
+	<<T as Endpoint>::ResponseType as std::iter::IntoIterator>::Item: Clone + fmt::Debug,
 {
 	type Item = Result<<<T as Endpoint>::ResponseType as IntoIterator>::Item, error::Error>;
 

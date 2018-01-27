@@ -13,6 +13,7 @@ use std::time;
 use std::thread;
 use std::sync::Arc;
 use std::sync::Mutex;
+use std;
 
 
 
@@ -213,9 +214,10 @@ impl Client {
 
 	pub fn pager<T>(self, mut endpoint: T) -> Pager<T>
 	where
-		T: Endpoint + PageableEndpoint,
-		T: Clone + fmt::Debug,
+		T: Endpoint + PageableEndpoint + Clone + fmt::Debug,
 		<T as Endpoint>::ResponseType: IntoIterator + Clone + fmt::Debug,
+		<<T as Endpoint>::ResponseType as std::iter::IntoIterator>::Item: Clone + fmt::Debug,
+
 	{
 		Pager::new(self, endpoint, None, None)
 	}
