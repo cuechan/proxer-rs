@@ -1,7 +1,10 @@
 use serde_json::Value;
+use chrono::NaiveDateTime;
 use super::Kat;
 use super::stringly_int;
 use super::stringly_array_spaces;
+use super::stringly_timestamp_weird;
+use super::stringly_timestamp_unix;
 
 
 
@@ -99,7 +102,8 @@ pub struct Tag {
 	pub id: i64,
 	#[serde(rename = "tid", deserialize_with = "stringly_int")]
 	pub tag_id: i64,
-	pub timestamp: String,
+	#[serde(deserialize_with = "stringly_timestamp_weird")]
+	pub timestamp: NaiveDateTime,
 	pub rate_flag: RateFlag,
 	pub spoiler_flag: SpoilerFlag,
 	pub tag: String,
@@ -149,8 +153,8 @@ pub struct Comment {
 	pub episode: i64,
 	#[serde(deserialize_with = "stringly_int")]
 	pub positive: i64,
-	#[serde(deserialize_with = "stringly_int")]
-	pub timestamp: i64, //Todo: use chrono here
+	#[serde(deserialize_with = "stringly_timestamp_unix")]
+	pub timestamp: NaiveDateTime, //Todo: use chrono here
 	pub username: String,
 	#[serde(deserialize_with = "stringly_int")]
 	pub uid: i64,

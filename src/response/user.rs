@@ -1,8 +1,11 @@
 use prelude::*;
-
-
-
-
+use serde_json::Value;
+use chrono::NaiveDateTime;
+use super::Kat;
+use super::stringly_int;
+use super::stringly_array_spaces;
+use super::stringly_timestamp_weird;
+use super::stringly_timestamp_unix;
 
 
 #[derive(Debug, Clone, Deserialize)]
@@ -18,13 +21,15 @@ struct GetListRaw {
 	pub episode: String,
 	pub data: String,
 	pub rating: String,
-	pub timestamp: String, //Todo: use chrono here
+	#[serde(deserialize_with = "stringly_timestamp_weird")]
+	pub timestamp: NaiveDateTime,
 }
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct GetList {
-	pub id: InfoID,
+	#[serde(deserialize_with = "stringly_int")]
+	pub id: i64,
 	pub name: String,
 	pub count: i64,
 	pub medium: String,
@@ -35,7 +40,8 @@ pub struct GetList {
 	pub episode: i64,
 	pub data: String,
 	pub rating: i64,
-	pub timestamp: String, //Todo: use chrono here
+	#[serde(deserialize_with = "stringly_timestamp_weird")]
+	pub timestamp: NaiveDateTime,
 }
 
 
@@ -53,13 +59,6 @@ pub struct Userinfo {
 	pub points_info: u64,
 	pub points_forum: u64,
 	pub points_misc: u64,
-}
-
-
-#[derive(Debug, Clone, Deserialize)]
-pub enum Kat {
-	Anime,
-	Manga,
 }
 
 

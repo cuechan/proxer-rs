@@ -2,10 +2,12 @@ pub mod info;
 pub mod user;
 pub mod list;
 
+use chrono;
+use chrono::NaiveDateTime;
+use chrono::format;
+use serde::de::{self, Deserializer, Visitor, Unexpected};
 use std::fmt;
 use std::marker::PhantomData;
-
-use serde::de::{self, Deserializer, Visitor, Unexpected};
 
 
 
@@ -72,6 +74,68 @@ where
 
 			Ok(list)
 			// Err(_) => Err(de::Error::invalid_value(Unexpected::Str(v), &self))
+		}
+	}
+
+	deserializer.deserialize_any(IntVisitor(PhantomData))
+}
+
+
+
+/// total clusterfuck
+pub fn stringly_timestamp_weird<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
+where
+    D: Deserializer<'de>
+{
+
+	struct IntVisitor(PhantomData<NaiveDateTime>);
+
+
+	impl<'a> Visitor<'a> for IntVisitor {
+		type Value = NaiveDateTime;
+
+		fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+			formatter.write_str("\"stringed datetime\"")
+		}
+
+
+		fn visit_str<E: de::Error>(self, v: &str) -> Result<Self::Value, E> {
+			// timestamp: "2016-06-19 14:13:26",
+			let time = NaiveDateTime::parse_from_str(v, "%F %T")
+				.expect(&format!("failed to parse: {}", v));
+
+			Ok(time)
+		}
+	}
+
+	deserializer.deserialize_any(IntVisitor(PhantomData))
+}
+
+
+
+
+/// better but still fucked up clusterfuck
+pub fn stringly_timestamp_unix<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
+where
+    D: Deserializer<'de>
+{
+
+	struct IntVisitor(PhantomData<NaiveDateTime>);
+
+
+	impl<'a> Visitor<'a> for IntVisitor {
+		type Value = NaiveDateTime;
+
+		fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+			formatter.write_str("\"stringed datetime\"")
+		}
+
+
+		fn visit_str<E: de::Error>(self, v: &str) -> Result<Self::Value, E> {
+			// timestamp: "2016-06-19 14:13:26",
+			let time = NaiveDateTime::parse_from_str(v, "%s").unwrap();
+
+			Ok(time)
 		}
 	}
 

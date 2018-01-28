@@ -11,9 +11,11 @@ readme        = "README.md"
 repository    = "https://github.com/cuechan/proxer-rs"
 version       = "0.3.3"
 
+
 [badges]
 maintenance = { status = "actively-developed" }
 travis-ci   = { repository = "cuechan/proxer-rs", branch = "master" }
+
 
 [dependencies]
 chrono            = "0.4.0"
