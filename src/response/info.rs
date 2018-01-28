@@ -100,8 +100,8 @@ pub struct Tag {
 	pub info_id: Option<i64>,
 	#[serde(deserialize_with = "stringly_int")]
 	pub id: i64,
-	#[serde(rename = "tid", deserialize_with = "stringly_int")]
-	pub tag_id: i64,
+	#[serde(deserialize_with = "stringly_int")]
+	pub tid: i64,
 	#[serde(deserialize_with = "stringly_timestamp_weird")]
 	pub timestamp: NaiveDateTime,
 	pub rate_flag: RateFlag,
@@ -140,8 +140,9 @@ pub enum WatchState {
 pub struct Comment {
 	#[serde(deserialize_with = "stringly_int")]
 	pub id: i64,
-	#[serde(rename = "tid", deserialize_with = "stringly_int")]
-	pub info_id: i64,
+	#[serde(deserialize_with = "stringly_int")]
+	pub tid: i64,
+	/// renamed. `type` is a rust keyword
 	#[serde(rename = "type")]
 	pub comment_type: String, // i have no idea what this is
 	pub state: WatchState,
