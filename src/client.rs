@@ -157,6 +157,7 @@ impl Client {
 				let mut json_string = String::new();
 				res.read_to_string(&mut json_string);
 
+				debug!("Answer: {}", json_string);
 
 				match serde_json::from_str::<ApiResponse<T::ResponseType>>(&json_string)
 				{
