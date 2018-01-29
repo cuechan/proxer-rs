@@ -127,13 +127,66 @@ where
 		type Value = NaiveDateTime;
 
 		fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-			formatter.write_str("\"stringed datetime\"")
+			formatter.write_str("\"stringed unix-timestamp\"")
 		}
 
 
 		fn visit_str<E: de::Error>(self, v: &str) -> Result<Self::Value, E> {
 			// timestamp: "2016-06-19 14:13:26",
 			let time = NaiveDateTime::parse_from_str(v, "%s").unwrap();
+
+			Ok(time)
+		}
+	}
+
+	deserializer.deserialize_any(IntVisitor(PhantomData))
+}
+
+
+
+pub fn timestamp_unix<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
+where
+    D: Deserializer<'de>
+{
+
+	struct IntVisitor(PhantomData<NaiveDateTime>);
+
+
+	impl<'a> Visitor<'a> for IntVisitor {
+		type Value = NaiveDateTime;
+
+		fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+			formatter.write_str("\"unix-timestamp\"")
+		}
+
+
+		fn visit_i64<E: de::Error>(self, v: i64) -> Result<Self::Value, E> {
+			// timestamp: "2016-06-19 14:13:26",
+			let time = NaiveDateTime::from_timestamp(v, 0);
+
+			Ok(time)
+		}
+
+
+		fn visit_u64<E: de::Error>(self, v: u64) -> Result<Self::Value, E> {
+			// timestamp: "2016-06-19 14:13:26",
+			let time = NaiveDateTime::from_timestamp(v as i64, 0);
+
+			Ok(time)
+		}
+
+
+		fn visit_i32<E: de::Error>(self, v: i32) -> Result<Self::Value, E> {
+			// timestamp: "2016-06-19 14:13:26",
+			let time = NaiveDateTime::from_timestamp(v as i64, 0);
+
+			Ok(time)
+		}
+
+
+		fn visit_u32<E: de::Error>(self, v: u32) -> Result<Self::Value, E> {
+			// timestamp: "2016-06-19 14:13:26",
+			let time = NaiveDateTime::from_timestamp(v as i64, 0);
 
 			Ok(time)
 		}
