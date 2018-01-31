@@ -1,10 +1,12 @@
+use chrono::DateTime;
+use chrono::FixedOffset;
 use serde_json::Value;
-use chrono::NaiveDateTime;
+use chrono::offset;
 use super::Kat;
 use super::stringly_int;
 use super::stringly_array_spaces;
-use super::stringly_timestamp_weird;
-use super::stringly_timestamp_unix;
+use super::parse_timestamp;
+use super::Timestamp;
 
 
 
@@ -102,8 +104,8 @@ pub struct Tag {
 	pub id: i64,
 	#[serde(deserialize_with = "stringly_int")]
 	pub tid: i64,
-	#[serde(deserialize_with = "stringly_timestamp_weird")]
-	pub timestamp: NaiveDateTime,
+	#[serde(deserialize_with = "parse_timestamp")]
+	pub timestamp: DateTime<FixedOffset>,
 	pub rate_flag: RateFlag,
 	pub spoiler_flag: SpoilerFlag,
 	pub tag: String,
@@ -154,8 +156,8 @@ pub struct Comment {
 	pub episode: i64,
 	#[serde(deserialize_with = "stringly_int")]
 	pub positive: i64,
-	#[serde(deserialize_with = "stringly_timestamp_unix")]
-	pub timestamp: NaiveDateTime, //Todo: use chrono here
+	#[serde(deserialize_with = "parse_timestamp")]
+	pub timestamp: DateTime<offset::FixedOffset>, //Todo: use chrono here
 	pub username: String,
 	#[serde(deserialize_with = "stringly_int")]
 	pub uid: i64,

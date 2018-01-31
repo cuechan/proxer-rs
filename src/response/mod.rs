@@ -2,12 +2,14 @@ pub mod info;
 pub mod user;
 pub mod list;
 
-use chrono;
 use chrono::NaiveDateTime;
-use chrono::format;
+use chrono::DateTime;
+use chrono::offset::FixedOffset;
 use serde::de::{self, Deserializer, Visitor, Unexpected};
 use std::fmt;
 use std::marker::PhantomData;
+
+pub type Timestamp = DateTime<FixedOffset>;
 
 
 
@@ -82,113 +84,80 @@ where
 
 
 
-/// total clusterfuck
-pub fn stringly_timestamp_weird<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
+
+pub fn parse_timestamp<'de, D>(deserializer: D) -> Result<DateTime<FixedOffset>, D::Error>
 where
     D: Deserializer<'de>
 {
 
-	struct IntVisitor(PhantomData<NaiveDateTime>);
+	struct IntVisitor(PhantomData<DateTime<FixedOffset>>);
 
 
 	impl<'a> Visitor<'a> for IntVisitor {
-		type Value = NaiveDateTime;
-
-		fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-			formatter.write_str("\"stringed datetime\"")
-		}
-
-
-		fn visit_str<E: de::Error>(self, v: &str) -> Result<Self::Value, E> {
-			// timestamp: "2016-06-19 14:13:26",
-			let time = NaiveDateTime::parse_from_str(v, "%F %T")
-				.expect(&format!("failed to parse: {}", v));
-
-			Ok(time)
-		}
-	}
-
-	deserializer.deserialize_any(IntVisitor(PhantomData))
-}
-
-
-
-
-/// better but still fucked up clusterfuck
-pub fn stringly_timestamp_unix<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
-where
-    D: Deserializer<'de>
-{
-
-	struct IntVisitor(PhantomData<NaiveDateTime>);
-
-
-	impl<'a> Visitor<'a> for IntVisitor {
-		type Value = NaiveDateTime;
-
-		fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-			formatter.write_str("\"stringed unix-timestamp\"")
-		}
-
-
-		fn visit_str<E: de::Error>(self, v: &str) -> Result<Self::Value, E> {
-			// timestamp: "2016-06-19 14:13:26",
-			let time = NaiveDateTime::parse_from_str(v, "%s").unwrap();
-
-			Ok(time)
-		}
-	}
-
-	deserializer.deserialize_any(IntVisitor(PhantomData))
-}
-
-
-
-pub fn timestamp_unix<'de, D>(deserializer: D) -> Result<NaiveDateTime, D::Error>
-where
-    D: Deserializer<'de>
-{
-
-	struct IntVisitor(PhantomData<NaiveDateTime>);
-
-
-	impl<'a> Visitor<'a> for IntVisitor {
-		type Value = NaiveDateTime;
+		type Value = DateTime<FixedOffset>;
 
 		fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
 			formatter.write_str("\"unix-timestamp\"")
 		}
 
 
-		fn visit_i64<E: de::Error>(self, v: i64) -> Result<Self::Value, E> {
-			// timestamp: "2016-06-19 14:13:26",
-			let time = NaiveDateTime::from_timestamp(v, 0);
+		fn visit_str<E: de::Error>(self, v: &str) -> Result<Self::Value, E> {
+			let offset = FixedOffset::east(3600);
 
-			Ok(time)
+			let fmts = vec![
+				"%s",
+				"%F %T"
+			];
+
+
+			for fmt in fmts {
+				if let Ok(r) = NaiveDateTime::parse_from_str(v, fmt) {
+					return Ok(DateTime::from_utc(r, offset));
+				}
+			}
+
+			Err(de::Error::custom(format!("can't parse time: {}", v)))
+		}
+
+
+		fn visit_i64<E: de::Error>(self, v: i64) -> Result<Self::Value, E> {
+			let time = NaiveDateTime::from_timestamp(v, 0);
+			let utc = DateTime::from_utc(time, FixedOffset::east(3600));
+
+			Ok(utc)
 		}
 
 
 		fn visit_u64<E: de::Error>(self, v: u64) -> Result<Self::Value, E> {
-			// timestamp: "2016-06-19 14:13:26",
-			let time = NaiveDateTime::from_timestamp(v as i64, 0);
+			self.visit_i64(v as i64)
 
-			Ok(time)
+
+			// let time = NaiveDateTime::from_timestamp(v, 0);
+			// let utc = DateTime::from_utc(time, FixedOffset::east(3600));
+			//
+			// Ok(utc)
 		}
 
 
 		fn visit_i32<E: de::Error>(self, v: i32) -> Result<Self::Value, E> {
-			// timestamp: "2016-06-19 14:13:26",
-			let time = NaiveDateTime::from_timestamp(v as i64, 0);
 
-			Ok(time)
+			self.visit_i64(v as i64)
+
+			// let time = NaiveDateTime::from_timestamp(v, 0);
+			// let utc = DateTime::from_utc(time, FixedOffset::east(3600));
+			//
+			// Ok(utc)
 		}
 
 
 		fn visit_u32<E: de::Error>(self, v: u32) -> Result<Self::Value, E> {
-			// timestamp: "2016-06-19 14:13:26",
-			let time = NaiveDateTime::from_timestamp(v as i64, 0);
+			self.visit_i64(v as i64)
 
-			Ok(time)
+
+			// let time = NaiveDateTime::from_timestamp(v, 0);
+			// let utc = DateTime::from_utc(time, FixedOffset::east(3600));
+			//
+			// Ok(utc)
 		}
 	}
 

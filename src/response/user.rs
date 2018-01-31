@@ -1,13 +1,8 @@
-#![allow(unused_imports)]
-use prelude::*;
-use serde_json::Value;
-use chrono::NaiveDateTime;
-use super::Kat;
+use super::parse_timestamp;
 use super::stringly_int;
-use super::stringly_array_spaces;
-use super::stringly_timestamp_weird;
-use super::stringly_timestamp_unix;
-use super::timestamp_unix;
+use super::Timestamp;
+
+
 
 
 
@@ -47,8 +42,8 @@ pub struct GetList {
 	pub data: String,
 	#[serde(deserialize_with = "stringly_int")]
 	pub rating: i64,
-	#[serde(deserialize_with = "stringly_timestamp_weird")]
-	pub timestamp: NaiveDateTime,
+	#[serde(deserialize_with = "parse_timestamp")]
+	pub timestamp: Timestamp,
 }
 
 
@@ -59,8 +54,8 @@ pub struct Userinfo {
 	pub username: String,
 	pub avatar: String,
 	pub status: String,
-	#[serde(deserialize_with = "timestamp_unix")]
-	pub status_time: NaiveDateTime,
+	#[serde(deserialize_with = "parse_timestamp")]
+	pub status_time: Timestamp,
 	#[serde(deserialize_with = "stringly_int")]
 	pub points_uploads: i64,
 	#[serde(deserialize_with = "stringly_int")]
