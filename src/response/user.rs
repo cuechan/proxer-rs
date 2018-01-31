@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 use prelude::*;
 use serde_json::Value;
 use chrono::NaiveDateTime;
@@ -7,7 +8,6 @@ use super::stringly_array_spaces;
 use super::stringly_timestamp_weird;
 use super::stringly_timestamp_unix;
 use super::timestamp_unix;
-
 
 
 
@@ -55,24 +55,24 @@ pub struct GetList {
 #[derive(Deserialize, Debug, Clone)]
 pub struct Userinfo {
 	#[serde(deserialize_with = "stringly_int")]
-	uid: i64,
-	username: String,
-	avatar: String,
-	status: String,
+	pub uid: i64,
+	pub username: String,
+	pub avatar: String,
+	pub status: String,
 	#[serde(deserialize_with = "timestamp_unix")]
-	status_time: NaiveDateTime,
+	pub status_time: NaiveDateTime,
 	#[serde(deserialize_with = "stringly_int")]
-	points_uploads: i64,
+	pub points_uploads: i64,
 	#[serde(deserialize_with = "stringly_int")]
-	points_anime: i64,
+	pub points_anime: i64,
 	#[serde(deserialize_with = "stringly_int")]
-	points_manga: i64,
+	pub points_manga: i64,
 	#[serde(deserialize_with = "stringly_int")]
-	points_info: i64,
+	pub points_info: i64,
 	#[serde(deserialize_with = "stringly_int")]
-	points_forum: i64,
+	pub points_forum: i64,
 	#[serde(deserialize_with = "stringly_int")]
-	points_misc: i64,
+	pub points_misc: i64,
 }
 
 
@@ -80,8 +80,8 @@ pub struct Userinfo {
 #[derive(Deserialize, Debug, Clone)]
 pub struct TopTen {
 	#[serde(deserialize_with = "stringly_int")]
-	eid: i64,
-	name: String,
-	kat: String,
-	medium: String,
+	pub eid: i64,
+	pub name: String,
+	pub kat: String,
+	pub medium: String,
 }
