@@ -149,15 +149,19 @@ impl Client {
 		self.reset_cooldown();
 
 
+
 		// This section needs some rewriting. maybe... later
 		match response
 		{
 			Err(e) => return Err(error::Error::Http),
 			Ok(mut res) => {
+				debug!("http response code: {}", res.status());
+
 				let mut json_string = String::new();
 				res.read_to_string(&mut json_string);
 
-				debug!("Answer: {}", json_string);
+				debug!("http response length: {}b", json_string.len());
+
 
 				match serde_json::from_str::<ApiResponse<T::ResponseType>>(&json_string)
 				{
