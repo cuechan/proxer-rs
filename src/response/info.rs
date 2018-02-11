@@ -21,11 +21,15 @@ pub struct Fullentry {
 	pub fsk: Vec<String>,
 	pub description: String,
 	pub medium: String,
-	pub count: String,
+	#[serde(deserialize_with = "stringly_int")]
+	pub count: i64,
 	pub state: String,
-	pub rate_sum: String,
-	pub rate_count: String,
-	pub clicks: String,
+	#[serde(deserialize_with = "stringly_int")]
+	pub rate_sum: i64,
+	#[serde(deserialize_with = "stringly_int")]
+	pub rate_count: i64,
+	#[serde(deserialize_with = "stringly_int")]
+	pub clicks: i64,
 	pub kat: String,
 	pub license: String,
 	pub tags: Vec<Tag>,
@@ -105,7 +109,7 @@ pub struct Tag {
 	#[serde(deserialize_with = "stringly_int")]
 	pub tid: i64,
 	#[serde(deserialize_with = "parse_timestamp")]
-	pub timestamp: DateTime<FixedOffset>,
+	pub timestamp: Timestamp,
 	pub rate_flag: RateFlag,
 	pub spoiler_flag: SpoilerFlag,
 	pub tag: String,
@@ -157,7 +161,7 @@ pub struct Comment {
 	#[serde(deserialize_with = "stringly_int")]
 	pub positive: i64,
 	#[serde(deserialize_with = "parse_timestamp")]
-	pub timestamp: DateTime<offset::FixedOffset>, //Todo: use chrono here
+	pub timestamp: Timestamp,
 	pub username: String,
 	#[serde(deserialize_with = "stringly_int")]
 	pub uid: i64,

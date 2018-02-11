@@ -5,11 +5,12 @@ pub mod list;
 use chrono::NaiveDateTime;
 use chrono::DateTime;
 use chrono::offset::FixedOffset;
+use chrono::offset::Utc;
 use serde::de::{self, Deserializer, Visitor, Unexpected};
 use std::fmt;
 use std::marker::PhantomData;
 
-pub type Timestamp = DateTime<FixedOffset>;
+pub type Timestamp = DateTime<Utc>;
 
 
 
@@ -85,16 +86,16 @@ where
 
 
 
-pub fn parse_timestamp<'de, D>(deserializer: D) -> Result<DateTime<FixedOffset>, D::Error>
+pub fn parse_timestamp<'de, D>(deserializer: D) -> Result<DateTime<Utc>, D::Error>
 where
     D: Deserializer<'de>
 {
 
-	struct IntVisitor(PhantomData<DateTime<FixedOffset>>);
+	struct IntVisitor(PhantomData<DateTime<Utc>>);
 
 
 	impl<'a> Visitor<'a> for IntVisitor {
-		type Value = DateTime<FixedOffset>;
+		type Value = DateTime<Utc>;
 
 		fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
 			formatter.write_str("\"unix-timestamp\"")
@@ -102,8 +103,6 @@ where
 
 
 		fn visit_str<E: de::Error>(self, v: &str) -> Result<Self::Value, E> {
-			let offset = FixedOffset::east(3600);
-
 			let fmts = vec![
 				"%s",
 				"%F %T"
@@ -112,7 +111,7 @@ where
 
 			for fmt in fmts {
 				if let Ok(r) = NaiveDateTime::parse_from_str(v, fmt) {
-					return Ok(DateTime::from_utc(r, offset));
+					return Ok(DateTime::from_utc(r, Utc));
 				}
 			}
 
@@ -122,7 +121,7 @@ where
 
 		fn visit_i64<E: de::Error>(self, v: i64) -> Result<Self::Value, E> {
 			let time = NaiveDateTime::from_timestamp(v, 0);
-			let utc = DateTime::from_utc(time, FixedOffset::east(3600));
+			let utc = DateTime::from_utc(time, Utc);
 
 			Ok(utc)
 		}
@@ -133,7 +132,7 @@ where
 
 
 			// let time = NaiveDateTime::from_timestamp(v, 0);
-			// let utc = DateTime::from_utc(time, FixedOffset::east(3600));
+			// let utc = DateTime::from_utc(time, Utc::east(3600));
 			//
 			// Ok(utc)
 		}
@@ -144,7 +143,7 @@ where
 			self.visit_i64(v as i64)
 
 			// let time = NaiveDateTime::from_timestamp(v, 0);
-			// let utc = DateTime::from_utc(time, FixedOffset::east(3600));
+			// let utc = DateTime::from_utc(time, Utc::east(3600));
 			//
 			// Ok(utc)
 		}
@@ -155,7 +154,7 @@ where
 
 
 			// let time = NaiveDateTime::from_timestamp(v, 0);
-			// let utc = DateTime::from_utc(time, FixedOffset::east(3600));
+			// let utc = DateTime::from_utc(time, Utc::east(3600));
 			//
 			// Ok(utc)
 		}
