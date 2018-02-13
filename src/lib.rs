@@ -21,6 +21,7 @@ pub mod tests;
 
 pub use client::Client;
 pub use prelude::*;
+pub use error::Error;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::fmt;
