@@ -135,7 +135,7 @@ pub struct GetList {
 
 
 impl GetList {
-	fn with_uid(uid: i64) -> Self {
+	pub fn with_uid(uid: i64) -> Self {
 		Self {
 			uid: Some(uid as usize),
 			..Default::default()
@@ -143,7 +143,7 @@ impl GetList {
 	}
 
 
-	fn with_username<T: ToString>(username: T) -> Self {
+	pub fn with_username<T: ToString>(username: T) -> Self {
 		Self {
 			username: Some(username.to_string()),
 			..Default::default()
