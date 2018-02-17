@@ -1,6 +1,7 @@
 use super::parse_timestamp;
 use super::stringly_int;
 use super::Timestamp;
+use super::WatchState;
 
 
 
@@ -17,11 +18,8 @@ pub struct Login {
 }
 
 
-
 #[derive(Debug, Clone, Deserialize)]
 pub struct Logout {}
-
-
 
 
 #[derive(Debug, Clone, Deserialize)]
@@ -69,7 +67,6 @@ pub struct Userinfo {
 	#[serde(deserialize_with = "stringly_int")]
 	pub points_misc: i64,
 }
-
 
 
 #[derive(Deserialize, Debug, Clone)]

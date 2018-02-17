@@ -7,6 +7,7 @@ use super::stringly_int;
 use super::stringly_array_spaces;
 use super::parse_timestamp;
 use super::Timestamp;
+use super::WatchState;
 
 
 
@@ -131,17 +132,6 @@ pub struct Name {
 }
 
 
-#[derive(Debug, Clone, Deserialize)]
-pub enum WatchState {
-	#[serde(rename = "0")]
-	Watched,
-	#[serde(rename = "1")]
-	Watching,
-	#[serde(rename = "2")]
-	WillWatch,
-	#[serde(rename = "3")]
-	Cancelled,
-}
 
 
 #[derive(Debug, Clone, Deserialize)]

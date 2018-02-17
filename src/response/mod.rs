@@ -222,3 +222,18 @@ pub enum Season {
 	#[serde(rename = "4")]
 	Autumn,
 }
+
+
+/// representing the `watchstate` of an entry
+/// only appears in context with an info and user (e.g. comment, rating)
+#[derive(Debug, Clone, Deserialize)]
+pub enum WatchState {
+	#[serde(rename = "0")]
+	Watched,
+	#[serde(rename = "1")]
+	Watching,
+	#[serde(rename = "2")]
+	WillWatch,
+	#[serde(rename = "3")]
+	Cancelled,
+}
