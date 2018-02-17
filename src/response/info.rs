@@ -104,8 +104,10 @@ pub enum RateFlag {
 #[derive(Debug, Clone, Deserialize)]
 pub struct Tag {
 	pub info_id: Option<i64>,
+	/// Id of tag <=> Entry relationship
 	#[serde(deserialize_with = "stringly_int")]
 	pub id: i64,
+	/// Id of the tag
 	#[serde(deserialize_with = "stringly_int")]
 	pub tid: i64,
 	#[serde(deserialize_with = "parse_timestamp")]
