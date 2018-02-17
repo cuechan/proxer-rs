@@ -58,16 +58,7 @@ pub struct Userinfo {
 }
 
 
-impl Endpoint for Userinfo {
-	type ResponseType = response::user::Userinfo;
-	#[doc(hidden)]
-	const URL: &'static str = "user/userinfo";
-}
-
-
-
 impl Userinfo {
-
 	/// shortcut with uid
 	pub fn uid(uid: i64) -> Self {
 		Self {
@@ -83,6 +74,13 @@ impl Userinfo {
 			username: Some(username)
 		}
 	}
+}
+
+
+impl Endpoint for Userinfo {
+	type ResponseType = response::user::Userinfo;
+	#[doc(hidden)]
+	const URL: &'static str = "user/userinfo";
 }
 
 
@@ -120,7 +118,7 @@ impl GetTopten {
 
 
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Default, Serialize, Debug, Clone)]
 pub struct GetList {
 	pub uid: Option<usize>,
 	pub username: Option<String>,
@@ -135,6 +133,23 @@ pub struct GetList {
 	pub limit: Option<usize>,
 }
 
+
+impl GetList {
+	fn with_uid(uid: i64) -> Self {
+		Self {
+			uid: Some(uid as usize),
+			..Default::default()
+		}
+	}
+
+
+	fn with_username<T: ToString>(username: T) -> Self {
+		Self {
+			username: Some(username.to_string()),
+			..Default::default()
+		}
+	}
+}
 
 
 
