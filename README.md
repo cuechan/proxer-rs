@@ -6,7 +6,11 @@
 Access [proxer.me](https://proxer.me) with rust
 
 
-# Making Requests
+# Examples
+
+You can find all examples in the `./examples`directory and run these with `cargo run --example <example-name>`.
+However, here is a small summary:
+
 
 Making requests is fairly simple:
 
@@ -55,18 +59,13 @@ let req = api::info::GetComments {
   sort: None,
 };
 
-
 // create a pager(`Iterator`) for the request
 let pager = req.pager(prxr);
-
-
 // iterate over the list
 for comment in pager {
   // Now, new comments are automagically fetched when the end of a page is reached
-
   // there is still some error handling
   let comment = comment.expect("something went wrong");
-
   println!("{}: {}", comment.username, comment.rating);
 }
 ```
