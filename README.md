@@ -26,14 +26,13 @@ let res = prxr.execute(req).unwrap();
 
 // check the response
 match res {
-	Ok(data) => println!("{:#?}", data),
-		Err(e) => {
-			match e {
-				error::Error::Api(k)    => panic!("API error: {}", k),
-				error::Error::Json(k)   => panic!("something is wrong: ", k),
-				error::Error::Http    => panic!("interwebs error"),
-				error::Error::Unknown => panic!("i dont know what happened"),
-			}
+  Ok(data) => println!("{:#?}", data),
+	Err(e) => {
+		match e {
+			error::Error::Api(k)  => panic!("API error: {}", k),
+			error::Error::Json(k) => panic!("something is wrong: ", k),
+			error::Error::Http    => panic!("interwebs error"),
+			error::Error::Unknown => panic!("i dont know what happened"),
 		}
 	}
 }
