@@ -2,6 +2,7 @@ use super::parse_timestamp;
 use super::stringly_int;
 use super::Timestamp;
 use super::WatchState;
+use super::Medium;
 
 
 
@@ -29,8 +30,8 @@ pub struct GetList {
 	pub name: String,
 	#[serde(deserialize_with = "stringly_int")]
 	pub count: i64,
-	pub medium: String,
-	pub estate: String,
+	pub medium: Medium,
+	pub estate: WatchState,
 	#[serde(deserialize_with = "stringly_int")]
 	pub cid: i64,
 	pub comment: String,
