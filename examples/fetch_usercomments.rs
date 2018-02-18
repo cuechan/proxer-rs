@@ -4,7 +4,7 @@ use proxer::Client;
 
 fn main() {
 	// a very simple straightforward request:
-	let req = user::GetList::with_username("genesis");
+	let req = user::GetList::with_uid(2324);
 
 	// create a client and a pager.
 	// The pager automatically iterates over the response

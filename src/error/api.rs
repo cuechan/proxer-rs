@@ -71,9 +71,6 @@ impl Errcode {
 }
 
 
-
-
-
 impl From<i64> for Errcode {
 	fn from(code: i64) -> Errcode
 	{
@@ -82,20 +79,12 @@ impl From<i64> for Errcode {
 }
 
 
-
 impl fmt::Display for Errcode {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
 	{
-		write!(f, "{:?}", self)
+		write!(f, "Api: {:?}", self)
 	}
 }
-
-
-
-
-
-
-
 
 
 
@@ -105,6 +94,7 @@ pub struct Api {
 	message: String,
 	error: Errcode,
 }
+
 
 impl Api {
 	pub fn new(code: i64, msg: String) -> Self
@@ -150,7 +140,6 @@ impl<T> From<client::ApiResponse<T>> for Api {
 		}
 	}
 }
-
 
 
 impl fmt::Display for Api {

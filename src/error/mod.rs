@@ -53,31 +53,19 @@ impl Error {
 
 
 
-
-
-
-
-
-
 impl fmt::Display for Error {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
 	{
-		write!(
-			f, "{}", match *self
-			{
-				Error::Api(_) => "API",
-				Error::Http => "HTTP",
-				Error::Json(_) => "Json",
-				Error::Unknown => "Unknown",
-			}
-		)
+		match *self
+		{
+			Error::Api(ref e) => e.fmt(f),
+			Error::Http => write!(f,"HTTP"),
+			Error::Json(_) => write!(f,"Json"),
+			Error::Unknown => write!(f,"Unknown"),
+		}
+
 	}
 }
-
-
-
-
-
 
 
 impl std::error::Error for Error {
