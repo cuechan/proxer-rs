@@ -8,28 +8,29 @@ pub enum Errcode {
 	UnknownError,
 
 	// 1xxx errors
-	ApiVersionNotFound,
-	ApiVersionDeprecated,
 	ApiClassNotFound,
-	ApiFunctionNotFound,
-	NoApiPermissions,
-	InvalidToken,
 	ApiFunctionDisabled,
-	ProxerMaintenance,
+	ApiFunctionNotFound,
 	ApiMaintenance,
+	ApiVersionDeprecated,
+	ApiVersionNotFound,
+	InvalidToken,
+	NoApiPermissions,
+	ProxerMaintenance,
 
 	// 2xxx errors
 	IpBlocked,
 	NewsError,
 
 	// 3xxx errors
-	MissingLoginCredentials,
-	InvalidLoginCredentials,
+	AccessDenied,
 	InvalidId,
+	InvalidLoginCredentials,
 	InvalidUid,
-	UserNotLoggedIn,
-	UserNotFound,
+	MissingLoginCredentials,
 	UserAlreadyLoggedIn,
+	UserNotFound,
+	UserNotLoggedIn,
 }
 
 impl Errcode {
@@ -56,6 +57,7 @@ impl Errcode {
 			3007 => Errcode::InvalidId,
 			3009 => Errcode::UserNotLoggedIn,
 			3012 => Errcode::UserAlreadyLoggedIn,
+			3014 => Errcode::AccessDenied,
 			3023 => Errcode::UserNotLoggedIn,
 			3034 => Errcode::UserNotLoggedIn,
 
