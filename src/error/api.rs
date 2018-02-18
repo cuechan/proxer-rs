@@ -2,8 +2,6 @@ use client;
 use serde_json;
 use std::fmt;
 
-
-
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Errcode {
 	// UNKNOWN_ERROR
@@ -34,13 +32,9 @@ pub enum Errcode {
 	UserAlreadyLoggedIn,
 }
 
-
 impl Errcode {
-	pub fn from_code(code: i64) -> Self
-	{
-
-		match code
-		{
+	pub fn from_code(code: i64) -> Self {
+		match code {
 			1000 => Errcode::ApiVersionNotFound,
 			1001 => Errcode::ApiVersionDeprecated,
 			1002 => Errcode::ApiClassNotFound,
@@ -70,23 +64,17 @@ impl Errcode {
 	}
 }
 
-
 impl From<i64> for Errcode {
-	fn from(code: i64) -> Errcode
-	{
+	fn from(code: i64) -> Errcode {
 		Errcode::from_code(code)
 	}
 }
 
-
 impl fmt::Display for Errcode {
-	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
-	{
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		write!(f, "Api: {:?}", self)
 	}
 }
-
-
 
 #[derive(Debug, Clone)]
 pub struct Api {
@@ -95,10 +83,8 @@ pub struct Api {
 	error: Errcode,
 }
 
-
 impl Api {
-	pub fn new(code: i64, msg: String) -> Self
-	{
+	pub fn new(code: i64, msg: String) -> Self {
 		Api {
 			code: code,
 			message: msg,
@@ -106,20 +92,15 @@ impl Api {
 		}
 	}
 
-	pub fn error(&self) -> Errcode
-	{
+	pub fn error(&self) -> Errcode {
 		self.error
 	}
 }
 
-
 impl From<serde_json::Value> for Api {
-	fn from(json: serde_json::Value) -> Self
-	{
-
+	fn from(json: serde_json::Value) -> Self {
 		let error = json.get("code").unwrap().as_i64().unwrap();
 		let msg = json.get("message").unwrap().as_str().unwrap();
-
 
 		Self {
 			error: Errcode::from_code(error),
@@ -129,10 +110,8 @@ impl From<serde_json::Value> for Api {
 	}
 }
 
-
 impl<T> From<client::ApiResponse<T>> for Api {
-	fn from(res: client::ApiResponse<T>) -> Self
-	{
+	fn from(res: client::ApiResponse<T>) -> Self {
 		Self {
 			code: res.code.unwrap(),
 			error: Errcode::from_code(res.code.unwrap()),
@@ -141,10 +120,8 @@ impl<T> From<client::ApiResponse<T>> for Api {
 	}
 }
 
-
 impl fmt::Display for Api {
-	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
-	{
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		write!(f, "{}", Errcode::from(self.code))
 	}
 }

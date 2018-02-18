@@ -1,6 +1,6 @@
 extern crate proxer;
-use proxer::api::user;
 use proxer::Client;
+use proxer::api::user;
 
 fn main() {
 	// a very simple straightforward request:
@@ -13,7 +13,6 @@ fn main() {
 		.unwrap()
 		.pager(req);
 
-
 	// Thanks to Rust's syntax sugar we can use an ordinary
 	// `for each` loop to make the request
 	for entry in pager {
@@ -25,5 +24,4 @@ fn main() {
 			Ok(r) => println!("{:#?}", r),
 		}
 	}
-
 }

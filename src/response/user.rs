@@ -1,14 +1,8 @@
-use super::parse_timestamp;
-use super::stringly_int;
+use super::Medium;
 use super::Timestamp;
 use super::WatchState;
-use super::Medium;
-
-
-
-
-
-
+use super::parse_timestamp;
+use super::stringly_int;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Login {
@@ -18,10 +12,8 @@ pub struct Login {
 	pub token: String,
 }
 
-
 #[derive(Debug, Clone, Deserialize)]
 pub struct Logout {}
-
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct GetList {
@@ -45,7 +37,6 @@ pub struct GetList {
 	pub timestamp: Timestamp,
 }
 
-
 #[derive(Deserialize, Debug, Clone)]
 pub struct Userinfo {
 	#[serde(deserialize_with = "stringly_int")]
@@ -68,7 +59,6 @@ pub struct Userinfo {
 	#[serde(deserialize_with = "stringly_int")]
 	pub points_misc: i64,
 }
-
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct TopTen {

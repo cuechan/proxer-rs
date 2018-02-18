@@ -1,11 +1,8 @@
 use super::Medium;
-use super::State;
 use super::Season;
-use super::stringly_int;
+use super::State;
 use super::stringly_array_spaces;
-
-
-
+use super::stringly_int;
 
 #[derive(Debug, Clone, Deserialize, Hash)]
 pub struct EntryList {

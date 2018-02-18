@@ -5,7 +5,6 @@ use serde_json;
 use std;
 use std::fmt;
 
-
 #[derive(Debug)]
 pub enum Error {
 	Api(api::Api),
@@ -14,12 +13,9 @@ pub enum Error {
 	Unknown,
 }
 
-
 impl Error {
-	pub fn is_api_error(self) -> bool
-	{
-		match self
-		{
+	pub fn is_api_error(self) -> bool {
+		match self {
 			Error::Api(_) => true,
 			Error::Json(_) => false,
 			Error::Http => false,
@@ -27,10 +23,8 @@ impl Error {
 		}
 	}
 
-	pub fn is_http_err(self) -> bool
-	{
-		match self
-		{
+	pub fn is_http_err(self) -> bool {
+		match self {
 			Error::Api(_) => false,
 			Error::Json(_) => false,
 			Error::Http => true,
@@ -38,10 +32,8 @@ impl Error {
 		}
 	}
 
-	pub fn is_json_error(self) -> bool
-	{
-		match self
-		{
+	pub fn is_json_error(self) -> bool {
+		match self {
 			Error::Api(_) => false,
 			Error::Json(_) => true,
 			Error::Http => false,
@@ -50,29 +42,20 @@ impl Error {
 	}
 }
 
-
-
-
 impl fmt::Display for Error {
-	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
-	{
-		match *self
-		{
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		match *self {
 			Error::Api(ref e) => e.fmt(f),
-			Error::Http => write!(f,"HTTP"),
-			Error::Json(_) => write!(f,"Json"),
-			Error::Unknown => write!(f,"Unknown"),
+			Error::Http => write!(f, "HTTP"),
+			Error::Json(_) => write!(f, "Json"),
+			Error::Unknown => write!(f, "Unknown"),
 		}
-
 	}
 }
 
-
 impl std::error::Error for Error {
-	fn description(&self) -> &str
-	{
-		match *self
-		{
+	fn description(&self) -> &str {
+		match *self {
 			Error::Api(_) => "API error",
 			Error::Http => "a connection error",
 			Error::Json(_) => "Json error",

@@ -1,9 +1,8 @@
+use Client;
 use Endpoint;
 use PageableEndpoint;
-use response::list as response;
 use Pager;
-use Client;
-
+use response::list as response;
 
 #[derive(Serialize, Debug, Clone)]
 pub struct GetEntryList {
@@ -17,13 +16,11 @@ pub struct GetEntryList {
 	pub limit: Option<usize>,
 }
 
-
 impl Endpoint for GetEntryList {
 	type ResponseType = Vec<response::EntryList>;
 	#[doc(hidden)]
 	const URL: &'static str = "list/entrylist";
 }
-
 
 impl PageableEndpoint for GetEntryList {
 	/// Default pager:
@@ -33,24 +30,19 @@ impl PageableEndpoint for GetEntryList {
 	/// limit = 3500
 	/// ```
 
-	fn pager(self, client: Client) -> Pager<Self>
-	{
+	fn pager(self, client: Client) -> Pager<Self> {
 		debug!("new pager with data: {:?}", self);
 		Pager::new(client, self, Some(0), Some(3500))
 	}
 
-	fn page_mut(&mut self) -> &mut Option<usize>
-	{
+	fn page_mut(&mut self) -> &mut Option<usize> {
 		&mut self.p
 	}
 
-	fn limit_mut(&mut self) -> &mut Option<usize>
-	{
+	fn limit_mut(&mut self) -> &mut Option<usize> {
 		&mut self.limit
 	}
 }
-
-
 
 impl GetEntryList {
 	/// Creates an instance with everything `None`

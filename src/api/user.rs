@@ -4,17 +4,12 @@ use Pager;
 use client::Client;
 use response;
 
-
-
-
 #[derive(Serialize, Debug, Clone)]
 pub struct Login {
 	pub username: String,
 	pub password: String,
 	pub secretkey: Option<String>,
 }
-
-
 
 impl Endpoint for Login {
 	type ResponseType = response::user::Login;
@@ -33,11 +28,8 @@ impl Login {
 	}
 }
 
-
-
 #[derive(Serialize, Debug, Clone)]
 pub struct Logout {}
-
 
 impl Endpoint for Logout {
 	type ResponseType = response::user::Logout;
@@ -45,25 +37,18 @@ impl Endpoint for Logout {
 	const URL: &'static str = "user/logout";
 }
 
-
-
-
-
-
-
 #[derive(Serialize, Debug, Clone)]
 pub struct Userinfo {
 	pub uid: Option<usize>,
 	pub username: Option<String>,
 }
 
-
 impl Userinfo {
 	/// shortcut with uid
 	pub fn uid(uid: i64) -> Self {
 		Self {
 			uid: Some(uid as usize),
-			username: None
+			username: None,
 		}
 	}
 
@@ -71,19 +56,16 @@ impl Userinfo {
 	pub fn user(username: String) -> Self {
 		Self {
 			uid: None,
-			username: Some(username)
+			username: Some(username),
 		}
 	}
 }
-
 
 impl Endpoint for Userinfo {
 	type ResponseType = response::user::Userinfo;
 	#[doc(hidden)]
 	const URL: &'static str = "user/userinfo";
 }
-
-
 
 #[derive(Serialize, Debug, Clone)]
 pub struct GetTopten {
@@ -93,14 +75,11 @@ pub struct GetTopten {
 	pub is_h: Option<bool>,
 }
 
-
 impl Endpoint for GetTopten {
 	type ResponseType = response::user::TopTen;
 	#[doc(hidden)]
 	const URL: &'static str = "user/topten";
 }
-
-
 
 impl GetTopten {
 	pub fn user(user: String) -> Self {
@@ -108,15 +87,10 @@ impl GetTopten {
 			uid: None,
 			username: Some(user),
 			kat: None,
-			is_h: None
+			is_h: None,
 		}
 	}
 }
-
-
-
-
-
 
 #[derive(Default, Serialize, Debug, Clone)]
 pub struct GetList {
@@ -133,7 +107,6 @@ pub struct GetList {
 	pub limit: Option<usize>,
 }
 
-
 impl GetList {
 	pub fn with_uid(uid: i64) -> Self {
 		Self {
@@ -141,7 +114,6 @@ impl GetList {
 			..Default::default()
 		}
 	}
-
 
 	pub fn with_username<T: ToString>(username: T) -> Self {
 		Self {
@@ -151,14 +123,11 @@ impl GetList {
 	}
 }
 
-
-
 impl Endpoint for GetList {
 	type ResponseType = Vec<response::user::GetList>;
 	#[doc(hidden)]
 	const URL: &'static str = "user/list";
 }
-
 
 /// Pager for `GetList`
 impl PageableEndpoint for GetList {
@@ -166,16 +135,14 @@ impl PageableEndpoint for GetList {
 		Pager::new(client, self, Some(0), Some(250))
 	}
 
-	fn page_mut(&mut self) ->&mut Option<usize> {
+	fn page_mut(&mut self) -> &mut Option<usize> {
 		&mut self.p
 	}
 
-	fn limit_mut(&mut self) ->&mut Option<usize> {
+	fn limit_mut(&mut self) -> &mut Option<usize> {
 		&mut self.limit
 	}
 }
-
-
 
 #[derive(Serialize, Debug, Clone)]
 pub struct GetLatestComments {
@@ -187,8 +154,6 @@ pub struct GetLatestComments {
 	pub p: Option<u64>,
 	pub limit: Option<u64>,
 }
-
-
 
 #[derive(Serialize, Debug, Clone)]
 pub struct GetHistory {

@@ -1,15 +1,10 @@
-use chrono::DateTime;
-use chrono::FixedOffset;
-use serde_json::Value;
-use chrono::offset;
 use super::Kat;
-use super::stringly_int;
-use super::stringly_array_spaces;
-use super::parse_timestamp;
 use super::Timestamp;
 use super::WatchState;
-
-
+use super::parse_timestamp;
+use super::stringly_array_spaces;
+use super::stringly_int;
+use serde_json::Value;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Fullentry {
@@ -36,7 +31,6 @@ pub struct Fullentry {
 	pub tags: Vec<Tag>,
 }
 
-
 #[derive(Debug, Clone, Deserialize)]
 pub struct GetEntry {
 	pub id: String,
@@ -55,7 +49,6 @@ pub struct GetEntry {
 	pub kat: Value,
 	pub license: Value,
 }
-
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct UserList {
@@ -82,8 +75,6 @@ pub struct UserList {
 	pub license: License,
 }
 
-
-
 #[derive(Debug, Clone, Deserialize)]
 pub enum SpoilerFlag {
 	#[serde(rename = "0")]
@@ -92,7 +83,6 @@ pub enum SpoilerFlag {
 	Spoiler,
 }
 
-
 #[derive(Debug, Clone, Deserialize)]
 pub enum RateFlag {
 	#[serde(rename = "0")]
@@ -100,7 +90,6 @@ pub enum RateFlag {
 	#[serde(rename = "1")]
 	Match,
 }
-
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Tag {
@@ -119,7 +108,6 @@ pub struct Tag {
 	pub description: String,
 }
 
-
 #[derive(Debug, Clone, Deserialize)]
 pub struct Name {
 	#[serde(deserialize_with = "stringly_int")]
@@ -130,9 +118,6 @@ pub struct Name {
 	pub type_: String,
 	pub name: String,
 }
-
-
-
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct Comment {
@@ -160,11 +145,6 @@ pub struct Comment {
 	pub avatar: String,
 }
 
-
-
-
-
-
 #[derive(Deserialize, Debug, Clone)]
 pub struct Userinfo {
 	#[serde(deserialize_with = "stringly_int")]
@@ -188,7 +168,6 @@ pub struct Userinfo {
 	#[serde(deserialize_with = "stringly_int")]
 	pub points_misc: i64,
 }
-
 
 #[derive(Debug, Clone, Deserialize)]
 pub enum License {
