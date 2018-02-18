@@ -47,7 +47,7 @@ impl fmt::Display for Error {
 		match *self {
 			Error::Api(ref e) => e.fmt(f),
 			Error::Http => write!(f, "HTTP"),
-			Error::Json(_) => write!(f, "Json"),
+			Error::Json(ref e) => write!(f, "Json: {}", e),
 			Error::Unknown => write!(f, "Unknown"),
 		}
 	}
