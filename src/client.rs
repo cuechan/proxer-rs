@@ -128,7 +128,7 @@ impl Client {
 				let mut json_string = String::new();
 				res.read_to_string(&mut json_string);
 
-				debug!("http response length: {}kb", json_string.len() * 1000);
+				debug!("http response length: {}kb", json_string.len() / 1000);
 
 				match serde_json::from_str::<ApiResponse<T::ResponseType>>(&json_string) {
 					Err(e) => return Err(error::Error::Json(e)),
