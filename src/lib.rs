@@ -1,3 +1,5 @@
+#![deny(warnings)]
+
 //! proxer api library
 extern crate chrono;
 #[macro_use]

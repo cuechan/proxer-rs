@@ -1,3 +1,5 @@
+#![allow(warnings)]
+
 mod time;
 use Client;
 use api;
