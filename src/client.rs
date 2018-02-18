@@ -1,8 +1,9 @@
 use Endpoint;
+use error;
 use PageableEndpoint;
 use Pager;
-use error;
 use reqwest;
+use reqwest::StatusCode;
 use reqwest::header;
 use serde_json;
 use serde_urlencoded;
@@ -114,9 +115,15 @@ impl Client {
 
 		// This section needs some rewriting. maybe... later
 		match response {
-			Err(e) => return Err(error::Error::Http),
+			Err(e) => return Err(error::Error::Unknown),
 			Ok(mut res) => {
 				debug!("http response code: {}", res.status());
+
+
+				if res.status() != StatusCode::Ok {
+					return Err(error::Error::Http)
+				}
+
 
 				let mut json_string = String::new();
 				res.read_to_string(&mut json_string);
