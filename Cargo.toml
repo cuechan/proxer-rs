@@ -9,7 +9,7 @@ license       = "MIT"
 name          = "proxer"
 readme        = "README.md"
 repository    = "https://github.com/cuechan/proxer-rs"
-version       = "0.3.3"
+version       = "0.3.5"
 
 
 [badges]
